@@ -1,26 +1,4 @@
 services:
-  caddy:
-    image: caddy
-    container_name: ${PACKAGE_NAME}_caddy
-    restart: always
-    profiles:
-      - prod
-    ports:
-      - '80:80'
-      - '443:443'
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      server:
-        condition: service_healthy
-    healthcheck:
-      test: ['CMD-SHELL', 'caddy validate --config /etc/caddy/Caddyfile']
-      interval: 30s
-      timeout: 5s
-      retries: 3
-
   server:
     platform: linux/amd64
     image: softvence/${PACKAGE_NAME}:latest
@@ -103,59 +81,10 @@ services:
       server:
         condition: service_healthy
 
-  redis-master:
-    image: redis
-    container_name: ${PACKAGE_NAME}_redis-master
-    profiles:
-      - dev
-      - prod
-    command:
-      [
-        'redis-server',
-        '--appendonly',
-        'yes',
-        '--bind',
-        '0.0.0.0',
-        '--protected-mode',
-        'no',
-      ]
-    ports:
-      - '22378:6379'
-    healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
-      interval: 5s
-      timeout: 3s
-      retries: 5
-    restart: always
-
-  redis-replica:
-    image: redis
-    container_name: ${PACKAGE_NAME}_redis-replica
-    profiles:
-      - prod
-    command:
-      [
-        'redis-server',
-        '--replicaof',
-        'redis-master',
-        '6379',
-        '--bind',
-        '0.0.0.0',
-        '--protected-mode',
-        'no',
-      ]
-    ports:
-      - '22379:6379'
-    depends_on:
-      - redis-master
-    restart: always
-
 volumes:
   db_data:
   files-data:
   temp-data:
-  caddy_data:
-  caddy_config:
 
 networks:
   default:
