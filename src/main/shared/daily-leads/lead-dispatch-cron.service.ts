@@ -14,6 +14,7 @@ export class LeadDispatchCronService {
    */
   @Cron(CronExpression.EVERY_MINUTE)
   async handleEscalation(): Promise<void> {
+    if (process.env.ENABLE_CRON !== 'true') return;
     this.logger.debug('Checking for overdue lead dispatches...');
     await this.leadDispatchService.escalatePendingDispatches().catch((err) => {
       this.logger.error(`Lead escalation cron error: ${err?.message}`);
