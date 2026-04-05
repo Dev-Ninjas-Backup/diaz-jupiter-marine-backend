@@ -1,7 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { PaginationDto } from '@/common/dto/pagination.dto';
-import { YachtBrokerFilterDto } from './yachtbroker.dto';
+import { AiQueryDto, YachtBrokerFilterDto } from './yachtbroker.dto';
 import { YachtBrokerService } from './yachtbroker.service';
 
 @ApiTags('Shared -- YachtBroker Listings')
@@ -80,7 +79,7 @@ export class YachtBrokerController {
       },
     },
   })
-  async getAiFormat(@Query() query: PaginationDto) {
+  async getAiFormat(@Query() query: AiQueryDto) {
     return this.yachtBrokerService.getAiFormat(query);
   }
 

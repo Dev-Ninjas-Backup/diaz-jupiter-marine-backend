@@ -1,7 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { PaginationDto } from '@/common/dto/pagination.dto';
-import { BoatsComFilterDto } from './boats-com.dto';
+import { AiQueryDto, BoatsComFilterDto } from './boats-com.dto';
 import { BoatsComService } from './boats-com.service';
 
 @ApiTags('Shared -- Boats.com Listings')
@@ -79,7 +78,7 @@ export class BoatsComController {
       },
     },
   })
-  async getAiFormat(@Query() query: PaginationDto) {
+  async getAiFormat(@Query() query: AiQueryDto) {
     return this.boatsComService.getAiFormat(query);
   }
 
