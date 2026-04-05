@@ -94,7 +94,6 @@ export class UserPermissionsService {
         },
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password: _password, ...userWithoutPassword } = user;
       return userWithoutPassword as AdminUserResponseDto;
     } catch (error) {

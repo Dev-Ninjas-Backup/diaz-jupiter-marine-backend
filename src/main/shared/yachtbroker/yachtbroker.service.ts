@@ -1,6 +1,9 @@
 import { AppError } from '@/common/error/handle-error.app';
 import { HandleError } from '@/common/error/handle-error.decorator';
-import { successPaginatedResponse, successResponse } from '@/common/utils/response.util';
+import {
+  successPaginatedResponse,
+  successResponse,
+} from '@/common/utils/response.util';
 import { PrismaService } from '@/lib/prisma/prisma.service';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from 'generated/client';
@@ -81,7 +84,10 @@ export class YachtBrokerService {
     });
 
     if (!listing) {
-      throw new AppError(HttpStatus.NOT_FOUND, `YachtBroker listing not found: ${externalId}`);
+      throw new AppError(
+        HttpStatus.NOT_FOUND,
+        `YachtBroker listing not found: ${externalId}`,
+      );
     }
 
     return successResponse(listing, 'YachtBroker listing fetched successfully');

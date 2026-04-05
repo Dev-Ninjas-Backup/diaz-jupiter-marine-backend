@@ -43,8 +43,7 @@ export class AuthMailService {
         title: '🔑 Verify Your Account',
         message,
         code: safeCode,
-        footer:
-          `If you didn't request this code, you can safely ignore this email.`,
+        footer: `If you didn't request this code, you can safely ignore this email.`,
       }),
       `${message}\nYour verification code: ${code}`,
     );
@@ -66,8 +65,7 @@ export class AuthMailService {
         title: '🔒 Password Reset Request',
         message,
         code: safeCode,
-        footer:
-          `If you didn't request a password reset, you can safely ignore this email.`,
+        footer: `If you didn't request a password reset, you can safely ignore this email.`,
       }),
       `${message}\nYour password reset code: ${code}\n\nIf you did not request this, please ignore this email.`,
     );

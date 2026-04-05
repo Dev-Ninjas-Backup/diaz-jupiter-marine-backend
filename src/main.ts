@@ -55,10 +55,7 @@ async function bootstrap() {
   });
 
   // * add body parser for raw body routes
-  app.use(
-    '/api/raw',
-    bodyParser.raw({ type: 'application/json' }),
-  );
+  app.use('/api/raw', bodyParser.raw({ type: 'application/json' }));
 
   const port = parseInt(configService.get<string>(ENVEnum.PORT) ?? '5052', 10);
   await app.listen(port);

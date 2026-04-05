@@ -41,5 +41,19 @@ export default defineConfig([
       'no-undef': 'off',
     },
   },
+  {
+    files: ['**/*.{ts,mts,cts}'],
+    rules: {
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
   eslintPluginPrettierRecommended,
 ]);

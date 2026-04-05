@@ -1,6 +1,9 @@
 import { HandleError } from '@/common/error/handle-error.decorator';
 import { AppError } from '@/common/error/handle-error.app';
-import { successPaginatedResponse, successResponse } from '@/common/utils/response.util';
+import {
+  successPaginatedResponse,
+  successResponse,
+} from '@/common/utils/response.util';
 import { PrismaService } from '@/lib/prisma/prisma.service';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from 'generated/client';
@@ -12,7 +15,17 @@ export class BoatsComService {
 
   @HandleError('Failed to get boats.com listings')
   async getAll(query: BoatsComFilterDto) {
-    const { page = 1, limit = 10, make, model, year, condition, city, state, search } = query;
+    const {
+      page = 1,
+      limit = 10,
+      make,
+      model,
+      year,
+      condition,
+      city,
+      state,
+      search,
+    } = query;
     const skip = (page - 1) * limit;
 
     const where: Prisma.BoatsComListingWhereInput = {};
@@ -53,7 +66,11 @@ export class BoatsComService {
       this.prisma.client.boatsComListing.count({ where }),
     ]);
 
-    return successPaginatedResponse(listings, { page, limit, total }, 'Boats.com listings fetched successfully');
+    return successPaginatedResponse(
+      listings,
+      { page, limit, total },
+      'Boats.com listings fetched successfully',
+    );
   }
 
   @HandleError('Failed to get boats.com listing')
@@ -63,7 +80,10 @@ export class BoatsComService {
     });
 
     if (!listing) {
-      throw new AppError(HttpStatus.NOT_FOUND, `Boats.com listing not found: ${documentId}`);
+      throw new AppError(
+        HttpStatus.NOT_FOUND,
+        `Boats.com listing not found: ${documentId}`,
+      );
     }
 
     return successResponse(listing, 'Boats.com listing fetched successfully');

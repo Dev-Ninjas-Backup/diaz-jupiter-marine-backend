@@ -14,7 +14,9 @@ export class BoatsSyncCronService {
 
   @Cron('0 */6 * * *')
   async handleBoatsSyncCron() {
-    this.logger.log('[BoatsSyncCron] Starting scheduled sync for all sources...');
+    this.logger.log(
+      '[BoatsSyncCron] Starting scheduled sync for all sources...',
+    );
 
     try {
       const [boatsComResult, yachtBrokerResult] = await Promise.all([

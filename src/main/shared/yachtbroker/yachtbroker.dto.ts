@@ -38,7 +38,9 @@ export class YachtBrokerFilterDto extends PaginationDto {
   @IsString()
   state?: string;
 
-  @ApiPropertyOptional({ description: 'Keyword search on vesselName, manufacturer, model' })
+  @ApiPropertyOptional({
+    description: 'Keyword search on vesselName, manufacturer, model',
+  })
   @IsOptional()
   @IsString()
   search?: string;

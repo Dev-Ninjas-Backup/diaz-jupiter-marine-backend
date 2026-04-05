@@ -4,7 +4,11 @@ import { BoatsComSyncService } from './services/boats-com-sync.service';
 import { YachtBrokerSyncService } from './services/yachtbroker-sync.service';
 
 @Module({
-  providers: [BoatsComSyncService, YachtBrokerSyncService, BoatsSyncCronService],
+  providers: [
+    BoatsComSyncService,
+    YachtBrokerSyncService,
+    BoatsSyncCronService,
+  ],
   exports: [BoatsComSyncService, YachtBrokerSyncService],
 })
 export class BoatsSyncModule {}

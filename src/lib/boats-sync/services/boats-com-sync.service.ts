@@ -27,12 +27,16 @@ export class BoatsComSyncService {
 
   private parsePrice(value: unknown): number | null {
     if (value === null || value === undefined) return null;
-    const str = String(value).replace(/\s*USD\s*/gi, '').trim();
+    const str = String(value)
+      .replace(/\s*USD\s*/gi, '')
+      .trim();
     const parsed = parseFloat(str);
     return isNaN(parsed) ? null : parsed;
   }
 
-  private toJsonOrNull(value: unknown): Prisma.InputJsonValue | typeof Prisma.JsonNull {
+  private toJsonOrNull(
+    value: unknown,
+  ): Prisma.InputJsonValue | typeof Prisma.JsonNull {
     if (value === null || value === undefined) return Prisma.JsonNull;
     return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
   }
@@ -79,7 +83,9 @@ export class BoatsComSyncService {
       ? (boat.GeneralBoatDescription as string[]).join('\n')
       : '';
 
-    const additionalDescription = Array.isArray(boat.AdditionalDetailDescription)
+    const additionalDescription = Array.isArray(
+      boat.AdditionalDetailDescription,
+    )
       ? (boat.AdditionalDetailDescription as string[]).join('\n')
       : '';
 
@@ -94,11 +100,21 @@ export class BoatsComSyncService {
       saleClassCode: (boat.SaleClassCode as string) ?? null,
       boatCategoryCode: (boat.BoatCategoryCode as string) ?? null,
       boatHullMaterialCode: (boat.BoatHullMaterialCode as string) ?? null,
-      nominalLength: boat.NominalLength ? parseFloat(String(boat.NominalLength)) : null,
-      lengthOverall: boat.LengthOverall ? parseFloat(String(boat.LengthOverall)) : null,
-      beamMeasure: boat.BeamMeasure ? parseFloat(String(boat.BeamMeasure)) : null,
-      numberOfEngines: boat.NumberOfEngines ? Number(boat.NumberOfEngines) : null,
-      headsCountNumeric: boat.HeadsCountNumeric ? Number(boat.HeadsCountNumeric) : null,
+      nominalLength: boat.NominalLength
+        ? parseFloat(String(boat.NominalLength))
+        : null,
+      lengthOverall: boat.LengthOverall
+        ? parseFloat(String(boat.LengthOverall))
+        : null,
+      beamMeasure: boat.BeamMeasure
+        ? parseFloat(String(boat.BeamMeasure))
+        : null,
+      numberOfEngines: boat.NumberOfEngines
+        ? Number(boat.NumberOfEngines)
+        : null,
+      headsCountNumeric: boat.HeadsCountNumeric
+        ? Number(boat.HeadsCountNumeric)
+        : null,
       boatName: (boat.BoatName as string) ?? null,
       description,
       additionalDescription,
@@ -110,7 +126,9 @@ export class BoatsComSyncService {
       fuelTankCapacity: boat.FuelTankCapacityMeasure
         ? String(boat.FuelTankCapacityMeasure)
         : null,
-      dryWeightMeasure: boat.DryWeightMeasure ? String(boat.DryWeightMeasure) : null,
+      dryWeightMeasure: boat.DryWeightMeasure
+        ? String(boat.DryWeightMeasure)
+        : null,
       bridgeClearance: boat.BridgeClearanceMeasure
         ? String(boat.BridgeClearanceMeasure)
         : null,
@@ -211,8 +229,12 @@ export class BoatsComSyncService {
     return { added, updated, total };
   }
 
-  async importFromFrontend(results: Record<string, unknown>[]): Promise<BoatsComSyncResult> {
-    this.logger.log(`[BoatsComSync] Importing ${results.length} boats from frontend`);
+  async importFromFrontend(
+    results: Record<string, unknown>[],
+  ): Promise<BoatsComSyncResult> {
+    this.logger.log(
+      `[BoatsComSync] Importing ${results.length} boats from frontend`,
+    );
     let added = 0;
     let updated = 0;
 
@@ -248,7 +270,9 @@ export class BoatsComSyncService {
     }
 
     const total = added + updated;
-    this.logger.log(`[BoatsComSync] Import done. Added: ${added}, Updated: ${updated}, Total: ${total}`);
+    this.logger.log(
+      `[BoatsComSync] Import done. Added: ${added}, Updated: ${updated}, Total: ${total}`,
+    );
     return { added, updated, total };
   }
 

@@ -147,7 +147,9 @@ export class AdminBoatListingHelperService {
         `You have exceeded the image upload limit (${planLimit} allowed)`,
       );
     }
-    this.logger.log(`Total uploaded images: ${filesCount} (limit: ${planLimit})`);
+    this.logger.log(
+      `Total uploaded images: ${filesCount} (limit: ${planLimit})`,
+    );
   }
 
   async syncBoatsEngines(
@@ -157,7 +159,9 @@ export class AdminBoatListingHelperService {
   ) {
     const previousIds = existingEngines.map((e) => e.id).filter(Boolean);
     const updatedIds = updatedEngines.map((e) => e.id).filter(Boolean);
-    const enginesToDelete = previousIds.filter((id) => !updatedIds.includes(id));
+    const enginesToDelete = previousIds.filter(
+      (id) => !updatedIds.includes(id),
+    );
 
     await this.prisma.client.$transaction(async (tx) => {
       if (enginesToDelete.length > 0) {

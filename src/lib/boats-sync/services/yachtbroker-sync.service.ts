@@ -45,7 +45,10 @@ function normalizeYachtBrokerVesselUrl(raw: string): string {
     }
   }
 
-  if (host === 'jupitermarinesales.com' || host.endsWith('.jupitermarinesales.com')) {
+  if (
+    host === 'jupitermarinesales.com' ||
+    host.endsWith('.jupitermarinesales.com')
+  ) {
     if (path === '/api/yachtbroker' || path.endsWith('/api/yachtbroker')) {
       u.pathname = `${path}/vessel`.replace(/\/{2,}/g, '/');
     }
@@ -67,7 +70,9 @@ export class YachtBrokerSyncService {
     private readonly config: ConfigService,
   ) {
     this.apiKey = this.config.getOrThrow<string>(ENVEnum.YACHTBROKER_API_KEY);
-    this.brokerId = this.config.getOrThrow<string>(ENVEnum.YACHTBROKER_BROKER_ID);
+    this.brokerId = this.config.getOrThrow<string>(
+      ENVEnum.YACHTBROKER_BROKER_ID,
+    );
     const rawUrl = this.config.getOrThrow<string>(ENVEnum.YACHTBROKER_API_URL);
     this.baseUrl = normalizeYachtBrokerVesselUrl(rawUrl);
     if (rawUrl !== this.baseUrl) {
@@ -86,7 +91,9 @@ export class YachtBrokerSyncService {
     };
   }
 
-  private toJsonOrNull(value: unknown): Prisma.InputJsonValue | typeof Prisma.JsonNull {
+  private toJsonOrNull(
+    value: unknown,
+  ): Prisma.InputJsonValue | typeof Prisma.JsonNull {
     if (value === null || value === undefined) return Prisma.JsonNull;
     return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
   }
@@ -97,7 +104,8 @@ export class YachtBrokerSyncService {
           large: (vessel.DisplayPicture as Record<string, unknown>).Large,
           hd: (vessel.DisplayPicture as Record<string, unknown>).HD,
           medium: (vessel.DisplayPicture as Record<string, unknown>).Medium,
-          thumbnail: (vessel.DisplayPicture as Record<string, unknown>).Thumbnail,
+          thumbnail: (vessel.DisplayPicture as Record<string, unknown>)
+            .Thumbnail,
         })
       : Prisma.JsonNull;
 
@@ -304,7 +312,9 @@ export class YachtBrokerSyncService {
    * - **`mode: 'full'`** (default for manual admin): every page.
    * - **`mode: 'incremental'`** (default for scheduled cron): pages 1 and last only.
    */
-  async syncAll(options?: YachtBrokerSyncOptions): Promise<YachtBrokerSyncResult> {
+  async syncAll(
+    options?: YachtBrokerSyncOptions,
+  ): Promise<YachtBrokerSyncResult> {
     const mode: YachtBrokerSyncMode = options?.mode ?? 'incremental';
     const existingCount = await this.prisma.client.yachtBrokerListing.count();
     const isInitialBootstrap = existingCount === 0;

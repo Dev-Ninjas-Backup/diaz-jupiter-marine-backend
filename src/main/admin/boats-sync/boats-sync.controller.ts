@@ -4,7 +4,13 @@ import { successResponse } from '@/common/utils/response.util';
 import { BoatsComSyncService } from '@/lib/boats-sync/services/boats-com-sync.service';
 import { YachtBrokerSyncService } from '@/lib/boats-sync/services/yachtbroker-sync.service';
 import { PrismaService } from '@/lib/prisma/prisma.service';
-import { BadRequestException, Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Post,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Admin -- Boats Sync')
@@ -58,11 +64,15 @@ export class BoatsSyncAdminController {
     },
   })
   @HandleError('Failed to import boats.com listings')
-  async importBoatsComFromFrontend(@Body() body: { results: Record<string, unknown>[] }) {
+  async importBoatsComFromFrontend(
+    @Body() body: { results: Record<string, unknown>[] },
+  ) {
     if (!Array.isArray(body?.results)) {
       throw new BadRequestException('body.results must be an array');
     }
-    const result = await this.boatsComSyncService.importFromFrontend(body.results);
+    const result = await this.boatsComSyncService.importFromFrontend(
+      body.results,
+    );
     return successResponse(result, 'Boats.com import completed successfully');
   }
 
@@ -85,7 +95,9 @@ export class BoatsSyncAdminController {
   }
 
   @Get('status')
-  @ApiOperation({ summary: 'Get sync status: record counts and last sync time' })
+  @ApiOperation({
+    summary: 'Get sync status: record counts and last sync time',
+  })
   @HandleError('Failed to fetch sync status')
   async getSyncStatus() {
     const [boatsComCount, yachtBrokerCount, latestBoatsCom, latestYachtBroker] =
