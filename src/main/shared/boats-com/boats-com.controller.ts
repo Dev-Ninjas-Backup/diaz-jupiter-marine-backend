@@ -1,5 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { PaginationDto } from '@/common/dto/pagination.dto';
 import { BoatsComFilterDto } from './boats-com.dto';
 import { BoatsComService } from './boats-com.service';
 
@@ -12,6 +13,15 @@ export class BoatsComController {
   @ApiOperation({ summary: 'Get paginated list of boats.com listings' })
   async getAll(@Query() query: BoatsComFilterDto) {
     return this.boatsComService.getAll(query);
+  }
+
+  @Get('ai')
+  @ApiOperation({
+    summary:
+      'Get boats.com listings in Inventory API format for AI consumption',
+  })
+  async getAiFormat(@Query() query: PaginationDto) {
+    return this.boatsComService.getAiFormat(query);
   }
 
   @Get(':documentId')

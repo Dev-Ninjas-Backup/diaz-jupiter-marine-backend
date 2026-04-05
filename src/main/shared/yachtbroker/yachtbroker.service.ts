@@ -4,6 +4,7 @@ import {
   successPaginatedResponse,
   successResponse,
 } from '@/common/utils/response.util';
+import { PaginationDto } from '@/common/dto/pagination.dto';
 import { PrismaService } from '@/lib/prisma/prisma.service';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from 'generated/client';
@@ -74,6 +75,107 @@ export class YachtBrokerService {
       listings,
       { page, limit, total },
       'YachtBroker listings fetched successfully',
+    );
+  }
+
+  @HandleError('Failed to get YachtBroker AI-formatted listings')
+  async getAiFormat(query: PaginationDto) {
+    const { page = 1, limit = 10 } = query;
+    const skip = (page - 1) * limit;
+
+    const [listings, total] = await Promise.all([
+      this.prisma.client.yachtBrokerListing.findMany({
+        skip,
+        take: limit,
+        orderBy: { lastSyncedAt: 'desc' },
+      }),
+      this.prisma.client.yachtBrokerListing.count(),
+    ]);
+
+    const data = listings.map((listing) => {
+      const engines = Array.isArray(listing.engines)
+        ? (listing.engines as Record<string, unknown>[]).map((eng) => ({
+            Make: eng.make ?? null,
+            Model: eng.model ?? null,
+            Fuel: eng.fuelType ?? null,
+            EnginePower:
+              eng.powerHp != null ? `${eng.powerHp}|horsepower` : null,
+            Type: eng.type ?? null,
+            Year: eng.year ?? null,
+            Hours: eng.hours ?? null,
+          }))
+        : [];
+
+      const totalHp =
+        (listing.engines as Record<string, unknown>[] | null)?.reduce(
+          (sum, eng) => sum + (Number(eng.powerHp) || 0),
+          0,
+        ) ?? 0;
+
+      const displayPicture = listing.displayPicture as Record<
+        string,
+        unknown
+      > | null;
+      const imageUri =
+        displayPicture?.large ??
+        displayPicture?.hd ??
+        displayPicture?.medium ??
+        null;
+
+      const additionalDescriptions: string[] = [];
+      if (listing.summary) additionalDescriptions.push(listing.summary);
+      if (listing.notableUpgrades)
+        additionalDescriptions.push(listing.notableUpgrades);
+
+      return {
+        Source: 'inventory',
+        DocumentID: listing.externalId,
+        LastModificationDate: listing.lastSyncedAt.toISOString().split('T')[0],
+        ItemReceivedDate: listing.createdAt.toISOString().split('T')[0],
+        OriginalPrice:
+          listing.priceUsd != null ? `${listing.priceUsd} USD` : null,
+        Price:
+          listing.priceUsd != null
+            ? `${listing.priceUsd.toFixed(2)} USD`
+            : null,
+        BoatLocation: {
+          BoatCityName: listing.city ?? null,
+          BoatCountryID: listing.country ?? null,
+          BoatStateCode: listing.state ?? null,
+        },
+        MakeString: listing.manufacturer ?? null,
+        ModelYear: listing.year ?? null,
+        Model: listing.model ?? null,
+        ...(listing.vesselName ? { ListingTitle: listing.vesselName } : {}),
+        BeamMeasure: listing.beamFeet != null ? `${listing.beamFeet} ft` : null,
+        TotalEnginePowerQuantity: totalHp > 0 ? `${totalHp} hp` : null,
+        NominalLength:
+          listing.displayLengthFeet != null
+            ? `${listing.displayLengthFeet} ft`
+            : null,
+        LengthOverall:
+          listing.displayLengthFeet != null
+            ? `${listing.displayLengthFeet} ft`
+            : null,
+        Engines: engines,
+        GeneralBoatDescription: listing.description
+          ? [listing.description]
+          : [],
+        AdditionalDetailDescription: additionalDescriptions,
+        Images: imageUri
+          ? {
+              Priority: '0',
+              Caption: null,
+              Uri: imageUri,
+            }
+          : null,
+      };
+    });
+
+    return successPaginatedResponse(
+      data,
+      { page, limit, total },
+      'Boats found successfully from Inventory API',
     );
   }
 
