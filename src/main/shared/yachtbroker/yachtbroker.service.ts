@@ -4,11 +4,10 @@ import {
   successPaginatedResponse,
   successResponse,
 } from '@/common/utils/response.util';
-import { PaginationDto } from '@/common/dto/pagination.dto';
 import { PrismaService } from '@/lib/prisma/prisma.service';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from 'generated/client';
-import { YachtBrokerFilterDto } from './yachtbroker.dto';
+import { AiQueryDto, YachtBrokerFilterDto } from './yachtbroker.dto';
 
 @Injectable()
 export class YachtBrokerService {
@@ -79,14 +78,15 @@ export class YachtBrokerService {
   }
 
   @HandleError('Failed to get YachtBroker AI-formatted listings')
-  async getAiFormat(query: PaginationDto) {
-    const { page = 1, limit = 10 } = query;
-    const skip = (page - 1) * limit;
+  async getAiFormat(query: AiQueryDto) {
+    const { page, limit } = query;
+    const paginate = page != null || limit != null;
+    const p = page ?? 1;
+    const l = limit ?? 10;
 
     const [listings, total] = await Promise.all([
       this.prisma.client.yachtBrokerListing.findMany({
-        skip,
-        take: limit,
+        ...(paginate ? { skip: (p - 1) * l, take: l } : {}),
         orderBy: { lastSyncedAt: 'desc' },
       }),
       this.prisma.client.yachtBrokerListing.count(),
@@ -174,7 +174,7 @@ export class YachtBrokerService {
 
     return successPaginatedResponse(
       data,
-      { page, limit, total },
+      { page: p, limit: paginate ? l : total, total },
       'Boats found successfully from Inventory API',
     );
   }
