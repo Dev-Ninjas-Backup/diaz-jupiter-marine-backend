@@ -11,18 +11,12 @@ services:
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://postgres:postgres@db:5432/${PACKAGE_NAME}_db
-
-      REDIS_HOST: redis-master
-      REDIS_PORT: 6379
-
       BASE_URL: http://0.0.0.0:5052/api
       PORT: 5052
     ports:
       - '5052:5052'
     depends_on:
       db:
-        condition: service_healthy
-      redis-master:
         condition: service_healthy
     command: >
       sh -c "
@@ -56,7 +50,7 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     ports:
-      - '127.0.0.1:5434:5432'
+      - '127.0.0.1:5432:5432'
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
