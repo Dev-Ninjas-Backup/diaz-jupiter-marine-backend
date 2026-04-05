@@ -1,3 +1,5 @@
+import { PermissionEnum } from '@/common/enum/permission.enum';
+import { RequirePermission } from '@/common/jwt/jwt.decorator';
 import {
   Body,
   Controller,
@@ -30,27 +32,6 @@ import { CategoryService } from './services/category.service';
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a new category' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({ type: CreateCategoryDto })
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: multer.memoryStorage(),
-    }),
-  )
-  @ApiResponse({
-    status: 201,
-    description: 'Category created successfully',
-  })
-  async create(
-    @UploadedFile() image: Express.Multer.File,
-    @Body() dto: CreateCategoryDto,
-  ) {
-    return this.categoryService.create(dto, image);
-  }
-
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all categories' })
@@ -66,37 +47,41 @@ export class CategoryController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get category by ID' })
   @ApiParam({ name: 'id', description: 'Category ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Category retrieved successfully',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Category not found',
-  })
+  @ApiResponse({ status: 200, description: 'Category retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'Category not found' })
   async findOne(@Param('id') id: string) {
     return this.categoryService.findOne(id);
   }
 
+  @Post()
+  @RequirePermission(PermissionEnum.CATEGORY_MANAGE)
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create a new category' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: CreateCategoryDto })
+  @UseInterceptors(
+    FileInterceptor('image', { storage: multer.memoryStorage() }),
+  )
+  @ApiResponse({ status: 201, description: 'Category created successfully' })
+  async create(
+    @UploadedFile() image: Express.Multer.File,
+    @Body() dto: CreateCategoryDto,
+  ) {
+    return this.categoryService.create(dto, image);
+  }
+
   @Patch(':id')
+  @RequirePermission(PermissionEnum.CATEGORY_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update category' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: UpdateCategoryDto })
   @ApiParam({ name: 'id', description: 'Category ID' })
   @UseInterceptors(
-    FileInterceptor('image', {
-      storage: multer.memoryStorage(),
-    }),
+    FileInterceptor('image', { storage: multer.memoryStorage() }),
   )
-  @ApiResponse({
-    status: 200,
-    description: 'Category updated successfully',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Category not found',
-  })
+  @ApiResponse({ status: 200, description: 'Category updated successfully' })
+  @ApiResponse({ status: 404, description: 'Category not found' })
   async update(
     @Param('id') id: string,
     @UploadedFile() image: Express.Multer.File,
@@ -106,17 +91,12 @@ export class CategoryController {
   }
 
   @Delete(':id')
+  @RequirePermission(PermissionEnum.CATEGORY_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete category' })
   @ApiParam({ name: 'id', description: 'Category ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Category deleted successfully',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Category not found',
-  })
+  @ApiResponse({ status: 200, description: 'Category deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Category not found' })
   async remove(@Param('id') id: string) {
     return this.categoryService.remove(id);
   }

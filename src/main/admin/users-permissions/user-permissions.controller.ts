@@ -1,3 +1,9 @@
+import { ALL_PERMISSIONS } from '@/common/enum/permission.enum';
+import {
+  RequirePermission,
+  ValidateSuperAdminOnly,
+} from '@/common/jwt/jwt.decorator';
+import { PermissionEnum } from '@/common/enum/permission.enum';
 import {
   BadRequestException,
   Body,
@@ -19,10 +25,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import {
-  ValidateSuperAdmin,
-  ValidateSuperAdminOnly,
-} from '@/common/jwt/jwt.decorator';
-import { AdminUserResponseDto, CreateAdminUserDto } from './dto/admin.dto';
+  AdminUserResponseDto,
+  CreateAdminUserDto,
+  UpdatePermissionsDto,
+} from './dto/admin.dto';
 import { changeRole } from './enum/changerole.enum';
 import { UserPermissionsService } from './user-permissions.services';
 
@@ -33,104 +39,109 @@ export class UserPermissionsController {
     private readonly userPermissionsServices: UserPermissionsService,
   ) {}
 
-  @ValidateSuperAdmin()
-  @ApiBearerAuth()
+  // ── Read all available permissions (SUPER_ADMIN or admins with USER_VIEW) ─
+
+  @Get('available-permissions')
+  @RequirePermission(PermissionEnum.USER_VIEW)
+  @ApiOperation({
+    summary: 'List all available permission keys',
+    description:
+      'Returns every permission value that can be assigned to an ADMIN user. ' +
+      'Use this to populate the permission selection UI when creating/editing admins.',
+  })
+  @ApiResponse({ status: 200, description: 'List of all permission strings' })
+  getAvailablePermissions() {
+    return {
+      status: 'success',
+      total: ALL_PERMISSIONS.length,
+      permissions: ALL_PERMISSIONS,
+    };
+  }
+
+  // ── List admins ────────────────────────────────────────────────────────────
+
+  @Get('get-admins')
+  @RequirePermission(PermissionEnum.USER_VIEW)
+  @ApiOperation({
+    summary: 'Retrieve list of all admin users with their permissions',
+  })
+  @ApiResponse({ status: 200, type: [AdminUserResponseDto] })
+  async getAdminUsers() {
+    return this.userPermissionsServices.getAdmins();
+  }
+
+  // ── Create admin ───────────────────────────────────────────────────────────
+
   @Post('add-admin')
-  @ApiOperation({ summary: 'Create a new admin user' })
+  @RequirePermission(PermissionEnum.USER_CREATE)
+  @ApiOperation({
+    summary: 'Create a new admin user',
+    description:
+      'SUPER_ADMIN or any admin with USER_CREATE permission can create admins. ' +
+      'Include a `permissions` array to define what the new ADMIN can access. ' +
+      'Ignored if the new user is a SUPER_ADMIN.',
+  })
   @ApiBody({ type: CreateAdminUserDto })
-  @ApiResponse({
-    status: 201,
-    description: 'Admin created successfully.',
-    type: AdminUserResponseDto,
-  })
-  @ApiResponse({ status: 400, description: 'Bad Request.' })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized - Invalid or missing token.',
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'Forbidden – insufficient permissions.',
-  })
+  @ApiResponse({ status: 201, type: AdminUserResponseDto })
   @ApiResponse({
     status: 409,
-    description: 'Conflict - Email or username already exists.',
+    description: 'Email or username already exists.',
   })
   async addAdmin(@Body() createAdminUserDto: CreateAdminUserDto) {
     return this.userPermissionsServices.addAdmin(createAdminUserDto);
   }
 
-  @ValidateSuperAdmin()
-  @ApiBearerAuth()
-  @Get('get-admins')
-  @ApiOperation({ summary: 'Retrieve list of all admin users' })
-  @ApiResponse({
-    status: 200,
-    description: 'List of admin users',
-    type: [CreateAdminUserDto], // adjust if you have a response DTO
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized - Invalid or missing token.',
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'Forbidden – insufficient permissions.',
-  })
-  async getAdminUsers() {
-    return this.userPermissionsServices.getAdmins();
-  }
+  // ── Update admin permissions (SUPER_ADMIN only) ───────────────────────────
 
+  @Patch(':id/permissions')
   @ValidateSuperAdminOnly()
   @ApiBearerAuth()
+  @ApiOperation({
+    summary: "Update an admin's permissions (SUPER_ADMIN only)",
+    description:
+      'Replaces the entire permissions array for the given admin user. ' +
+      'Has no effect on SUPER_ADMIN users (they have all permissions by design).',
+  })
+  @ApiParam({ name: 'id', description: 'Admin user UUID' })
+  @ApiBody({ type: UpdatePermissionsDto })
+  @ApiResponse({ status: 200, description: 'Permissions updated.' })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  async updatePermissions(
+    @Param('id') id: string,
+    @Body() dto: UpdatePermissionsDto,
+  ) {
+    return this.userPermissionsServices.updatePermissions(id, dto.permissions);
+  }
+
+  // ── Change role (SUPER_ADMIN only) ────────────────────────────────────────
+
   @Patch(':id')
+  @ValidateSuperAdminOnly()
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Change role of a user (SUPER_ADMIN only)' })
-  @ApiParam({ name: 'id', description: 'User ID (UUID or number)' })
-  @ApiQuery({
-    name: 'changerole',
-    enum: changeRole,
-    description: 'New role to assign',
-    example: changeRole.ADMIN,
-  })
-  @ApiResponse({ status: 200, description: 'Role updated successfully.' })
-  @ApiResponse({ status: 400, description: 'Invalid role provided.' })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized - Invalid or missing token.',
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'Forbidden – insufficient permissions.',
-  })
+  @ApiParam({ name: 'id', description: 'User ID (UUID)' })
+  @ApiQuery({ name: 'changerole', enum: changeRole })
+  @ApiResponse({ status: 200, description: 'Role updated.' })
+  @ApiResponse({ status: 400, description: 'Invalid role.' })
   async changeRole(
     @Query('changerole') role: changeRole,
     @Param('id') id: string,
   ) {
-    if (!role || !Object.values(changeRole).includes(role as changeRole)) {
+    if (!role || !Object.values(changeRole).includes(role)) {
       throw new BadRequestException(
-        `Invalid site. Allowed values: ${Object.values(changeRole).join(', ')}`,
+        `Invalid role. Allowed values: ${Object.values(changeRole).join(', ')}`,
       );
     }
-
     return this.userPermissionsServices.changeRole(id, role);
   }
 
-  @ValidateSuperAdmin()
-  @ApiBearerAuth()
+  // ── Delete admin ───────────────────────────────────────────────────────────
+
   @Delete(':id')
-  @ApiOperation({
-    summary: 'Soft-delete or remove admin privileges from a user',
-  })
-  @ApiParam({ name: 'id', description: 'User ID to delete as admin' })
-  @ApiResponse({ status: 200, description: 'Admin removed successfully.' })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized - Invalid or missing token.',
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'Forbidden – insufficient permissions.',
-  })
+  @RequirePermission(PermissionEnum.USER_DELETE)
+  @ApiOperation({ summary: 'Soft-delete an admin user' })
+  @ApiParam({ name: 'id', description: 'User ID' })
+  @ApiResponse({ status: 200, description: 'Admin removed.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
   async deleteAdmin(@Param('id') id: string) {
     return this.userPermissionsServices.deleteAdmin(id);

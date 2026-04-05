@@ -13,6 +13,7 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/${PACKAGE_NAME}_db
       BASE_URL: http://0.0.0.0:5052/api
       PORT: 5052
+      ENABLE_CRON: false
     ports:
       - '5052:5052'
     depends_on:
@@ -34,6 +35,35 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+
+  cron:
+    platform: linux/amd64
+    image: softvence/${PACKAGE_NAME}:latest
+    container_name: ${PACKAGE_NAME}_cron
+    profiles:
+      - prod
+    restart: always
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/${PACKAGE_NAME}_db
+      BASE_URL: http://0.0.0.0:5052/api
+      PORT: 5053
+      ENABLE_CRON: true
+    depends_on:
+      db:
+        condition: service_healthy
+      server:
+        condition: service_healthy
+    command: >
+      sh -c "
+        echo '⏰ Starting cron worker...';
+        pnpm start
+      "
+    volumes:
+      - files-data:/app/uploads
+      - temp-data:/app/tmp
 
   db:
     image: postgres:17

@@ -1,3 +1,5 @@
+import { PermissionEnum } from '@/common/enum/permission.enum';
+import { RequirePermission } from '@/common/jwt/jwt.decorator';
 import { TResponse } from '@/common/utils/response.util';
 import {
   Body,
@@ -52,6 +54,7 @@ export class FaqController {
   }
 
   @Post()
+  @RequirePermission(PermissionEnum.FAQ_MANAGE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create FAQ for a site' })
   @ApiBody({ type: CreateFaqDto })
@@ -68,6 +71,7 @@ export class FaqController {
   }
 
   @Patch()
+  @RequirePermission(PermissionEnum.FAQ_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update FAQ for a site' })
   @ApiQuery({
@@ -94,6 +98,7 @@ export class FaqController {
   }
 
   @Delete()
+  @RequirePermission(PermissionEnum.FAQ_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete FAQ for a site' })
   @ApiQuery({

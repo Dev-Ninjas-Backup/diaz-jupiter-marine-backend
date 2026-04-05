@@ -1,3 +1,5 @@
+import { PermissionEnum } from '@/common/enum/permission.enum';
+import { RequirePermission } from '@/common/jwt/jwt.decorator';
 import { PaginationDto } from '@/common/dto/pagination.dto';
 import { TPaginatedResponse, TResponse } from '@/common/utils/response.util';
 import {
@@ -52,6 +54,7 @@ export class ContactController {
   ) {}
 
   @ApiOperation({ summary: 'Get all contacts' })
+  @RequirePermission(PermissionEnum.CONTACT_VIEW)
   @Get()
   async getContacts(
     @Query() query: GetContactsDto,
@@ -66,6 +69,7 @@ export class ContactController {
   }
 
   @ApiOperation({ summary: 'Update contact status' })
+  @RequirePermission(PermissionEnum.CONTACT_UPDATE)
   @Patch(':id/status')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({
@@ -79,6 +83,7 @@ export class ContactController {
   }
 
   @Get('contact-us')
+  @RequirePermission(PermissionEnum.CONTACT_VIEW)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all contact us form submissions' })
   @ApiOkResponse({
@@ -144,6 +149,7 @@ export class ContactController {
   }
 
   @Post('contact-info')
+  @RequirePermission(PermissionEnum.CONTACT_INFO_MANAGE)
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(FileInterceptor('backgroundImage'))
   @ApiConsumes('multipart/form-data')
@@ -205,6 +211,7 @@ export class ContactController {
   }
 
   @Patch('contact-info')
+  @RequirePermission(PermissionEnum.CONTACT_INFO_MANAGE)
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileInterceptor('backgroundImage'))
   @ApiConsumes('multipart/form-data')

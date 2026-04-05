@@ -1,3 +1,5 @@
+import { PermissionEnum } from '@/common/enum/permission.enum';
+import { RequirePermission } from '@/common/jwt/jwt.decorator';
 import {
   BadRequestException,
   Body,
@@ -77,6 +79,7 @@ export class AboutUsController {
   }
 
   @Post('create')
+  @RequirePermission(PermissionEnum.ABOUT_US_MANAGE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create About Us content for a site (only if not exists)',
@@ -111,6 +114,7 @@ export class AboutUsController {
   }
 
   @Patch()
+  @RequirePermission(PermissionEnum.ABOUT_US_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update About Us content for a site' })
   @ApiQuery({
@@ -174,6 +178,7 @@ export class AboutUsController {
   }
 
   @Post('our-story')
+  @RequirePermission(PermissionEnum.ABOUT_US_MANAGE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create Our Story content for a site (only if not exists)',
@@ -231,6 +236,7 @@ export class AboutUsController {
   }
 
   @Patch('our-story')
+  @RequirePermission(PermissionEnum.ABOUT_US_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update Our Story content for a site' })
   @ApiConsumes('multipart/form-data')
@@ -317,6 +323,7 @@ export class AboutUsController {
   }
 
   @Post('mission-vision')
+  @RequirePermission(PermissionEnum.ABOUT_US_MANAGE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create Mission & Vision content for a site (only if not exists)',
@@ -374,6 +381,7 @@ export class AboutUsController {
   }
 
   @Patch('mission-vision')
+  @RequirePermission(PermissionEnum.ABOUT_US_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update Mission & Vision content for a site' })
   @ApiConsumes('multipart/form-data')
@@ -462,6 +470,7 @@ export class AboutUsController {
   }
 
   @Post('what-sets-us-apart')
+  @RequirePermission(PermissionEnum.ABOUT_US_MANAGE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary:
@@ -518,6 +527,7 @@ export class AboutUsController {
   }
 
   @Patch('what-sets-us-apart')
+  @RequirePermission(PermissionEnum.ABOUT_US_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Update What Sets Us Apart content for a site',

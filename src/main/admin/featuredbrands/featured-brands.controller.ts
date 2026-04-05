@@ -1,3 +1,5 @@
+import { PermissionEnum } from '@/common/enum/permission.enum';
+import { RequirePermission } from '@/common/jwt/jwt.decorator';
 import {
   BadRequestException,
   Body,
@@ -25,7 +27,20 @@ import { FeaturedBrandsService } from './services/featured-brands.service';
 export class FeaturedBrandsController {
   constructor(private readonly featuredBrandsService: FeaturedBrandsService) {}
 
+  @Get()
+  @ApiOperation({ summary: 'Get all featured brands by site' })
+  findAll(@Query() dto: GetFeaturedBrandQueryDto) {
+    return this.featuredBrandsService.findAll(dto.site);
+  }
+
+  @Get(':site')
+  @ApiOperation({ summary: 'Get featured brands by site' })
+  findOne(@Param('site') site: SiteType) {
+    return this.featuredBrandsService.findAllBySite(site);
+  }
+
   @Post()
+  @RequirePermission(PermissionEnum.FEATURED_BRAND_MANAGE)
   @ApiOperation({ summary: 'Create featured brand' })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
@@ -40,26 +55,14 @@ export class FeaturedBrandsController {
     if (!dto || !dto.site) {
       throw new BadRequestException('Missing required field: site');
     }
-
     return this.featuredBrandsService.create(
       dto,
       files?.featuredbrandLogo?.[0],
     );
   }
 
-  @Get()
-  @ApiOperation({ summary: 'Get all featured brands by site' })
-  findAll(@Query() dto: GetFeaturedBrandQueryDto) {
-    return this.featuredBrandsService.findAll(dto.site);
-  }
-
-  @Get(':site')
-  @ApiOperation({ summary: 'Get featured brands by site' })
-  findOne(@Param('site') site: SiteType) {
-    return this.featuredBrandsService.findAllBySite(site);
-  }
-
   @Patch(':id')
+  @RequirePermission(PermissionEnum.FEATURED_BRAND_MANAGE)
   @ApiOperation({ summary: 'Update featured brand' })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
@@ -80,6 +83,7 @@ export class FeaturedBrandsController {
   }
 
   @Delete(':id')
+  @RequirePermission(PermissionEnum.FEATURED_BRAND_MANAGE)
   @ApiOperation({ summary: 'Delete featured brand' })
   remove(@Param('id') id: string) {
     return this.featuredBrandsService.remove(id);

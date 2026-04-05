@@ -1,5 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ALL_PERMISSIONS, PermissionEnum } from '@/common/enum/permission.enum';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsArray,
   IsBoolean,
   IsEmail,
   IsEnum,
@@ -28,6 +30,9 @@ export class GetAdminUsersDto {
   @ApiProperty({ example: 'ADMIN', enum: UserRole })
   @IsEnum(UserRole)
   role: UserRole;
+
+  @ApiProperty({ isArray: true, enum: PermissionEnum })
+  permissions: string[];
 }
 
 export class CreateAdminUserDto {
@@ -71,7 +76,7 @@ export class CreateAdminUserDto {
   })
   password: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   googleId?: string;
@@ -85,14 +90,14 @@ export class CreateAdminUserDto {
   @MinLength(2)
   name: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   avatarUrl?: string;
 
   @ApiProperty({
     enum: UserRole,
-    example: UserRole.SUPER_ADMIN,
+    example: UserRole.ADMIN,
     description: 'Role assigned to the user',
     default: UserRole.ADMIN,
   })
@@ -100,10 +105,39 @@ export class CreateAdminUserDto {
   @IsNotEmpty()
   role: UserRole;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   @IsBoolean()
   @IsOptional()
   isVerified?: boolean;
+
+  @ApiPropertyOptional({
+    isArray: true,
+    enum: PermissionEnum,
+    description:
+      'Permissions to assign. Ignored when role is SUPER_ADMIN (they have all permissions). ' +
+      `Available values: ${ALL_PERMISSIONS.join(', ')}`,
+    example: [PermissionEnum.DASHBOARD_VIEW, PermissionEnum.BLOG_MANAGE],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsEnum(PermissionEnum, { each: true })
+  permissions?: PermissionEnum[];
+}
+
+export class UpdatePermissionsDto {
+  @ApiProperty({
+    isArray: true,
+    enum: PermissionEnum,
+    description: 'Complete list of permissions to assign to the admin user.',
+    example: [
+      PermissionEnum.DASHBOARD_VIEW,
+      PermissionEnum.BLOG_MANAGE,
+      PermissionEnum.LEADS_VIEW,
+    ],
+  })
+  @IsArray()
+  @IsEnum(PermissionEnum, { each: true })
+  permissions: PermissionEnum[];
 }
 
 export class AdminUserResponseDto {
@@ -123,12 +157,12 @@ export class AdminUserResponseDto {
   @IsString()
   name: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   googleId?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   avatarUrl?: string;
@@ -137,32 +171,35 @@ export class AdminUserResponseDto {
   @IsEnum(UserRole)
   role: UserRole;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ isArray: true, enum: PermissionEnum })
+  permissions: string[];
+
+  @ApiPropertyOptional()
   @IsBoolean()
   @IsOptional()
   isVerified?: boolean;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   phone?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   country?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   city?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   state?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   zip?: string;

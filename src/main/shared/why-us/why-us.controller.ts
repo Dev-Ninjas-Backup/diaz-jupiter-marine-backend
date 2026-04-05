@@ -1,3 +1,5 @@
+import { PermissionEnum } from '@/common/enum/permission.enum';
+import { RequirePermission } from '@/common/jwt/jwt.decorator';
 import { TResponse } from '@/common/utils/response.util';
 import {
   Body,
@@ -61,6 +63,7 @@ export class WhyUsController {
   }
 
   @Post()
+  @RequirePermission(PermissionEnum.WHY_US_MANAGE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create Why Us section for a site',
@@ -102,6 +105,7 @@ export class WhyUsController {
   }
 
   @Patch()
+  @RequirePermission(PermissionEnum.WHY_US_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Update Why Us section for a site',
@@ -150,6 +154,7 @@ export class WhyUsController {
   }
 
   @Delete()
+  @RequirePermission(PermissionEnum.WHY_US_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Delete Why Us section for a site',

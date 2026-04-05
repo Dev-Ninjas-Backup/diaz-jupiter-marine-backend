@@ -1,3 +1,5 @@
+import { PermissionEnum } from '@/common/enum/permission.enum';
+import { RequirePermission } from '@/common/jwt/jwt.decorator';
 import { TResponse } from '@/common/utils/response.util';
 import {
   Body,
@@ -75,6 +77,7 @@ export class EmailSubscribeController {
   }
 
   @Get('list')
+  @RequirePermission(PermissionEnum.EMAIL_SUBSCRIBE_VIEW)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Get all subscriptions',
@@ -114,6 +117,7 @@ export class EmailSubscribeController {
   }
 
   @Get('active')
+  @RequirePermission(PermissionEnum.EMAIL_SUBSCRIBE_VIEW)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Get active subscriptions',
