@@ -4,6 +4,7 @@ import { AuthModule } from './auth/auth.module';
 import { BoatsComModule } from './boats-com/boats-com.module';
 import { BoatsModule } from './boats/boats.module';
 import { ContactModule } from './contact/contact.module';
+import { DailyLeadsModule } from './daily-leads/daily-leads.module';
 import { EmailSubscribeModule } from './email-subscribe/email-subscribe.module';
 import { FaqModule } from './faq/faq.module';
 import { FooterModule } from './footer/footer.module';
@@ -21,6 +22,7 @@ import { YachtBrokerModule } from './yachtbroker/yachtbroker.module';
     BoatsComModule,
     YachtBrokerModule,
     ContactModule,
+    DailyLeadsModule,
     EmailSubscribeModule,
     FaqModule,
     FooterModule,
