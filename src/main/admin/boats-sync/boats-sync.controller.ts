@@ -1,5 +1,6 @@
+import { PermissionEnum } from '@/common/enum/permission.enum';
 import { HandleError } from '@/common/error/handle-error.decorator';
-import { ValidateAdmin } from '@/common/jwt/jwt.decorator';
+import { RequirePermission } from '@/common/jwt/jwt.decorator';
 import { successResponse } from '@/common/utils/response.util';
 import { BoatsComSyncService } from '@/lib/boats-sync/services/boats-com-sync.service';
 import { YachtBrokerSyncService } from '@/lib/boats-sync/services/yachtbroker-sync.service';
@@ -11,11 +12,9 @@ import {
   Get,
   Post,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Admin -- Boats Sync')
-@ApiBearerAuth()
-@ValidateAdmin()
 @Controller('admin/boats-sync')
 export class BoatsSyncAdminController {
   constructor(
@@ -25,6 +24,7 @@ export class BoatsSyncAdminController {
   ) {}
 
   @Post('boats-com')
+  @RequirePermission(PermissionEnum.BOATS_SYNC)
   @ApiOperation({ summary: 'Manually trigger boats.com sync' })
   @HandleError('Failed to sync boats.com')
   async syncBoatsCom() {
@@ -33,10 +33,11 @@ export class BoatsSyncAdminController {
   }
 
   @Post('yachtbroker')
+  @RequirePermission(PermissionEnum.BOATS_SYNC)
   @ApiOperation({
     summary: 'Manually trigger YachtBroker sync',
     description:
-      'Runs a **full** paginated sync (every page). Scheduled jobs use incremental sync (first and last page only).',
+      'Runs a **full** paginated sync (every page). Scheduled jobs use incremental sync.',
   })
   @HandleError('Failed to sync YachtBroker')
   async syncYachtBroker() {
@@ -45,21 +46,16 @@ export class BoatsSyncAdminController {
   }
 
   @Post('boats-com/import')
+  @RequirePermission(PermissionEnum.BOATS_SYNC)
   @ApiOperation({
     summary: 'Import boats.com listings pushed from the frontend browser',
-    description:
-      'Frontend fetches boats.com API directly (bypasses Cloudflare) and POSTs the raw `results` array here for storage.',
   })
   @ApiBody({
     schema: {
       type: 'object',
       required: ['results'],
       properties: {
-        results: {
-          type: 'array',
-          items: { type: 'object' },
-          description: 'Raw results array from boats.com API response',
-        },
+        results: { type: 'array', items: { type: 'object' } },
       },
     },
   })
@@ -77,10 +73,9 @@ export class BoatsSyncAdminController {
   }
 
   @Post('all')
+  @RequirePermission(PermissionEnum.BOATS_SYNC)
   @ApiOperation({
     summary: 'Manually trigger sync for all boat sources concurrently',
-    description:
-      'YachtBroker is synced in **full** mode (all pages), same as POST /yachtbroker.',
   })
   @HandleError('Failed to sync all boat sources')
   async syncAll() {
@@ -95,6 +90,7 @@ export class BoatsSyncAdminController {
   }
 
   @Get('status')
+  @RequirePermission(PermissionEnum.BOATS_SYNC)
   @ApiOperation({
     summary: 'Get sync status: record counts and last sync time',
   })

@@ -1,3 +1,5 @@
+import { PermissionEnum } from '@/common/enum/permission.enum';
+import { RequirePermission } from '@/common/jwt/jwt.decorator';
 import { TResponse } from '@/common/utils/response.util';
 import {
   Body,
@@ -37,6 +39,7 @@ export class OurTeamController {
   constructor(private readonly ourTeamService: OurTeamService) {}
 
   @Post()
+  @RequirePermission(PermissionEnum.OUR_TEAM_MANAGE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create a new team member',
@@ -101,6 +104,7 @@ export class OurTeamController {
   }
 
   @Patch(':id')
+  @RequirePermission(PermissionEnum.OUR_TEAM_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Update a team member',
@@ -131,6 +135,7 @@ export class OurTeamController {
   }
 
   @Delete(':id')
+  @RequirePermission(PermissionEnum.OUR_TEAM_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Delete a team member',

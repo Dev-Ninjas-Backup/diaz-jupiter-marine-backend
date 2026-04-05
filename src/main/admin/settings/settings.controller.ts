@@ -1,3 +1,5 @@
+import { PermissionEnum } from '@/common/enum/permission.enum';
+import { RequirePermission } from '@/common/jwt/jwt.decorator';
 import {
   Body,
   Controller,
@@ -18,19 +20,17 @@ export class SettingsController {
   constructor(private readonly settingsService: SettingsService) {}
 
   @Get()
+  @RequirePermission(PermissionEnum.SETTINGS_VIEW)
   @ApiOperation({ summary: 'Get site settings' })
   getSettings() {
     return this.settingsService.getSettings();
   }
 
   @Patch()
+  @RequirePermission(PermissionEnum.SETTINGS_UPDATE)
   @ApiOperation({ summary: 'Update site settings' })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(
-    FileInterceptor('logo', {
-      storage: multer.memoryStorage(),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('logo', { storage: multer.memoryStorage() }))
   updateSettings(
     @Body() dto: UpdateSettingsDto,
     @UploadedFile() file?: Express.Multer.File,

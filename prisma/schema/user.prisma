@@ -19,8 +19,9 @@ model User {
   zip     String?
 
   // Settings
-  role   UserRole   @default(ADMIN)
-  status UserStatus @default(ACTIVE)
+  role        UserRole   @default(ADMIN)
+  status      UserStatus @default(ACTIVE)
+  permissions String[]   @default([]) // ADMIN-only: list of PermissionEnum values (SUPER_ADMIN bypasses this)
 
   // Logout tracking
   isLoggedIn   Boolean   @default(false)

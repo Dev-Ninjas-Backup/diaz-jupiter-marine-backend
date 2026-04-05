@@ -1,3 +1,5 @@
+import { PermissionEnum } from '@/common/enum/permission.enum';
+import { RequirePermission } from '@/common/jwt/jwt.decorator';
 import {
   BadRequestException,
   Body,
@@ -60,6 +62,7 @@ export class TermsOfServiceController {
   }
 
   @Post('create')
+  @RequirePermission(PermissionEnum.CONTENT_MANAGE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create Terms of Service for a site (only if not exists)',
@@ -97,6 +100,7 @@ export class TermsOfServiceController {
   }
 
   @Patch()
+  @RequirePermission(PermissionEnum.CONTENT_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update Terms of Service for a site' })
   @ApiQuery({

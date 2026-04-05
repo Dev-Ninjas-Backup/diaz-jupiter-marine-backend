@@ -12,6 +12,7 @@ import { Prisma } from 'generated/client';
 import { DailyLead } from 'generated/client';
 import { CreateDailyLeadDto } from './dto/create-daily-lead.dto';
 import { UpdateDailyLeadDto } from './dto/update-daily-lead.dto';
+import { LeadDispatchService } from './lead-dispatch.service';
 import { getNewLeadAlertHtml } from './templates/new-lead-alert.template';
 
 export type DailyLeadResponse = {
@@ -61,6 +62,7 @@ export class DailyLeadsService {
     private readonly prisma: PrismaService,
     private readonly mailService: MailService,
     private readonly configService: ConfigService,
+    private readonly leadDispatchService: LeadDispatchService,
   ) {}
 
   private handlePrismaError(err: unknown): never {
@@ -202,6 +204,13 @@ export class DailyLeadsService {
       await this.sendNewLeadEmailToAdmin(lead).catch((err) => {
         this.logger.warn(
           `Failed to send new lead email to admin: ${err?.message ?? err}`,
+        );
+      });
+
+      // Dispatch lead to team members in order (order 0 first, escalate after 10 mins)
+      await this.leadDispatchService.dispatchNewLead(lead.id).catch((err) => {
+        this.logger.warn(
+          `Failed to dispatch lead to team: ${err?.message ?? err}`,
         );
       });
 

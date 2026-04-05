@@ -1,0 +1,33 @@
+model LeadAssignmentMember {
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  name     String
+  order    Int     @unique // 0 = first notified, 1 = second, etc.
+  isActive Boolean @default(true) @map("is_active")
+
+  dispatches LeadEmailDispatch[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("lead_assignment_members")
+}
+
+model LeadEmailDispatch {
+  id              Int       @id @default(autoincrement())
+  leadId          Int       @map("lead_id")
+  memberId        Int       @map("member_id")
+  memberEmail     String    @map("member_email")
+  memberName      String    @map("member_name")
+  assignmentOrder Int       @map("assignment_order")
+  token           String    @unique
+  sentAt          DateTime  @default(now()) @map("sent_at")
+  respondedAt     DateTime? @map("responded_at")
+  isResponded     Boolean   @default(false) @map("is_responded")
+  escalatedAt     DateTime? @map("escalated_at") // set when escalated to next member
+
+  lead   DailyLead            @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  member LeadAssignmentMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@map("lead_email_dispatches")
+}

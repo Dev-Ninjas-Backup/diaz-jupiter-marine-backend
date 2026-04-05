@@ -1,3 +1,5 @@
+import { PermissionEnum } from '@/common/enum/permission.enum';
+import { RequirePermission } from '@/common/jwt/jwt.decorator';
 import {
   BadRequestException,
   Body,
@@ -60,6 +62,7 @@ export class PrivacyPolicyController {
   }
 
   @Post('create')
+  @RequirePermission(PermissionEnum.CONTENT_MANAGE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create privacy policy for a site (only if not exists)',
@@ -97,6 +100,7 @@ export class PrivacyPolicyController {
   }
 
   @Patch()
+  @RequirePermission(PermissionEnum.CONTENT_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update privacy policy for a site' })
   @ApiQuery({

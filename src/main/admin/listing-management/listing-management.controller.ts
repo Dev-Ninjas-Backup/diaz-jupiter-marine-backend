@@ -1,11 +1,11 @@
-import { GetUser, ValidateAdmin } from '@/common/jwt/jwt.decorator';
+import { PermissionEnum } from '@/common/enum/permission.enum';
+import { GetUser, RequirePermission } from '@/common/jwt/jwt.decorator';
 import { FileType, MulterService } from '@/lib/multer/multer.service';
-import { QueueFile } from './services/adminboat-listing-helper.service';
-import { CreateBoatsInfoDto } from '@/main/seller/boats/dto/boats-info.dto';
 import {
   BoatListingDto,
   ExtraDetailItemDto,
 } from '@/main/seller/boats/dto/boats.dto';
+import { CreateBoatsInfoDto } from '@/main/seller/boats/dto/boats-info.dto';
 import {
   Body,
   Controller,
@@ -20,7 +20,6 @@ import {
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiExtraModels,
@@ -31,6 +30,7 @@ import { BoatImageType } from 'generated/enums';
 import { ListingFilterDto } from './dto/listing-filter.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
 import { AdminCreateListingService } from './services/admincreate-listing.service';
+import { QueueFile } from './services/adminboat-listing-helper.service';
 import { ListingManagementService } from './services/listing-management.service';
 
 @ApiTags('Admin -- Listing Management')
@@ -43,18 +43,21 @@ export class ListingManagementController {
   ) {}
 
   @Get()
+  @RequirePermission(PermissionEnum.LISTINGS_VIEW)
   @ApiOperation({ summary: 'Get all yacht listings' })
   getAll(@Query() query: ListingFilterDto) {
     return this.service.getAll(query);
   }
 
   @Get(':id')
+  @RequirePermission(PermissionEnum.LISTINGS_VIEW)
   @ApiOperation({ summary: 'Get single yacht listing by ID' })
   getById(@Param('id') id: string) {
     return this.service.getById(id);
   }
 
   @Patch(':id')
+  @RequirePermission(PermissionEnum.LISTINGS_UPDATE)
   @ApiOperation({ summary: 'Update a yacht listing' })
   @ApiBody({
     type: UpdateListingDto,
@@ -62,25 +65,17 @@ export class ListingManagementController {
     examples: {
       example1: {
         summary: 'Update name and price',
-        value: {
-          name: 'Sapphire',
-          price: 125000.5,
-        },
+        value: { name: 'Sapphire', price: 125000.5 },
       },
-      example2: {
-        summary: 'Update status',
-        value: {
-          status: 'ACTIVE',
-        },
-      },
+      example2: { summary: 'Update status', value: { status: 'ACTIVE' } },
     },
   })
   update(@Param('id') id: string, @Body() dto: UpdateListingDto) {
     return this.service.update(id, dto);
   }
 
-  @ApiBearerAuth()
-  @ValidateAdmin()
+  @Post('admin-create-listing')
+  @RequirePermission(PermissionEnum.LISTINGS_CREATE)
   @ApiOperation({ summary: 'Create admin Boat Listing' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: BoatListingDto })
@@ -98,13 +93,9 @@ export class ListingManagementController {
       }),
     ),
   )
-  @Post('admin-create-listing')
   async admincreateListing(
     @GetUser('sub') userId: string,
-    @Body()
-    data: {
-      boatInfo: CreateBoatsInfoDto;
-    },
+    @Body() data: { boatInfo: CreateBoatsInfoDto },
     @UploadedFiles()
     files: {
       covers?: Express.Multer.File[];
@@ -131,6 +122,7 @@ export class ListingManagementController {
   }
 
   @Delete(':id')
+  @RequirePermission(PermissionEnum.LISTINGS_DELETE)
   @ApiOperation({ summary: 'Delete a yacht listing' })
   delete(@Param('id') id: string) {
     return this.service.delete(id);

@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ENVEnum } from '../enum/env.enum';
-import { JWTPayload } from './jwt.interface';
+import { JWTPayload, JWTSignPayload } from './jwt.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -24,9 +24,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JWTPayload) {
+  async validate(payload: JWTSignPayload): Promise<JWTPayload> {
     const user = await this.prisma.client.user.findUnique({
       where: { id: payload.sub },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        isLoggedIn: true,
+        permissions: true,
+      },
     });
 
     if (!user) {
@@ -37,11 +44,20 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new ForbiddenException('User is not logged in');
     }
 
-    await this.prisma.client.user.update({
-      where: { id: payload.sub },
-      data: { lastActiveAt: new Date() },
-    });
+    // Update last active timestamp (non-blocking)
+    this.prisma.client.user
+      .update({
+        where: { id: payload.sub },
+        data: { lastActiveAt: new Date() },
+      })
+      .catch(() => undefined);
 
-    return payload;
+    // Always return fresh role + permissions from DB so changes take effect immediately
+    return {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      permissions: user.permissions,
+    };
   }
 }

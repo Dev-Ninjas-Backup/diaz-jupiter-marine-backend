@@ -1,3 +1,5 @@
+import { PermissionEnum } from '@/common/enum/permission.enum';
+import { RequirePermission } from '@/common/jwt/jwt.decorator';
 import { TResponse } from '@/common/utils/response.util';
 import {
   Body,
@@ -52,6 +54,7 @@ export class FooterController {
   }
 
   @Post()
+  @RequirePermission(PermissionEnum.FOOTER_MANAGE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create footer settings for a site' })
   @ApiBody({ type: CreateFooterDto })
@@ -68,6 +71,7 @@ export class FooterController {
   }
 
   @Patch()
+  @RequirePermission(PermissionEnum.FOOTER_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update footer settings for a site' })
   @ApiQuery({
@@ -94,6 +98,7 @@ export class FooterController {
   }
 
   @Delete()
+  @RequirePermission(PermissionEnum.FOOTER_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete footer settings for a site' })
   @ApiQuery({

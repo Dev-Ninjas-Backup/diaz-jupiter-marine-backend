@@ -1,3 +1,5 @@
+import { PermissionEnum } from '@/common/enum/permission.enum';
+import { RequirePermission } from '@/common/jwt/jwt.decorator';
 import {
   BadRequestException,
   Body,
@@ -58,6 +60,7 @@ export class ContactUsController {
   }
 
   @Post('create')
+  @RequirePermission(PermissionEnum.CONTACT_INFO_MANAGE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create Contact Us content for a site (only if not exists)',
@@ -92,6 +95,7 @@ export class ContactUsController {
   }
 
   @Patch()
+  @RequirePermission(PermissionEnum.CONTACT_INFO_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update Contact Us content for a site' })
   @ApiQuery({

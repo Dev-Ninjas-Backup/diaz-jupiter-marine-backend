@@ -1,7 +1,7 @@
 import { UserResponseDto } from '@/common/dto/user-response.dto';
 import { ENVEnum } from '@/common/enum/env.enum';
 import { AppError } from '@/common/error/handle-error.app';
-import { JWTPayload } from '@/common/jwt/jwt.interface';
+import { JWTSignPayload } from '@/common/jwt/jwt.interface';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -72,7 +72,7 @@ export class UtilsService {
     return bcrypt.compare(value, hash);
   }
 
-  generateToken(payload: JWTPayload): string {
+  generateToken(payload: JWTSignPayload): string {
     const token = this.jwtService.sign(payload, {
       secret: this.configService.getOrThrow(ENVEnum.JWT_SECRET),
       expiresIn: this.configService.getOrThrow(ENVEnum.JWT_EXPIRES_IN),
