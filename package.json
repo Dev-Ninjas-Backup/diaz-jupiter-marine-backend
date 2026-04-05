@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "cross-env NODE_OPTIONS='--max-old-space-size=4096' npx prisma migrate deploy && nest start --watch",
     "devd": "nest start --watch",
-    "build": "cross-env NODE_OPTIONS='--max-old-space-size=4096' nest build",
+    "build": "prisma generate && cross-env NODE_OPTIONS='--max-old-space-size=4096' nest build",
     "start": "npx prisma migrate deploy && node dist/src/main",
     "start:debug": "nest start --debug --watch",
     "lint": "eslint . --ext .ts",
