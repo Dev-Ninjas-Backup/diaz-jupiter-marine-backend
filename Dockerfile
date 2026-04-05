@@ -22,7 +22,9 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 
 # Build the app (NestJS -> dist/)
+# prisma.config.ts resolves DATABASE_URL at config load; no DB needed for prisma generate
 ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:5432/docker_build?schema=public"
 RUN pnpm build
 
 # ====== PRODUCTION STAGE ======

@@ -7,6 +7,10 @@ on:
     branches:
       - '**'
 
+# prisma.config.ts requires DATABASE_URL to load; not used for connectivity during prisma generate / nest build
+env:
+  DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/ci_placeholder?schema=public
+
 jobs:
   ci-check:
     name: Lint, Format, Build
