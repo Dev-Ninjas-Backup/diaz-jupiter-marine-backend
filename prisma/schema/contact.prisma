@@ -1,0 +1,82 @@
+model Contact {
+  id String @id @default(uuid())
+
+  name    String
+  email   String
+  phone   String
+  message String
+
+  source ContactSource @default(JUPITER)
+  type   ContactType
+
+  listingId     String?
+  listingSource String?
+
+  status String @default("Not Contacted")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  leads Lead[]
+
+  @@map("contact")
+}
+
+model ContactUs {
+  id String @id @default(uuid())
+
+  fullName        String
+  phone           String
+  email           String
+  boatInformation String?
+  comments        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("contact_us")
+}
+
+model ContactInfo {
+  id String @id @default(uuid())
+
+  address      String
+  email        String
+  phone        String
+  workingHours Json
+  socialMedia  Json?
+
+  backgroundImageId String?       @unique
+  backgroundImage   FileInstance? @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
+
+  site SiteType @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("contact_info")
+}
+
+enum ContactSource {
+  JUPITER
+}
+
+enum ContactType {
+  INDIVIDUAL_LISTING
+  GLOBAL
+}
+
+model Lead {
+  id String @id @default(uuid())
+
+  contactId String
+  contact   Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  boatId String
+  boat   Boats  @relation(fields: [boatId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("leads")
+}

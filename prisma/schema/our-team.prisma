@@ -1,0 +1,30 @@
+model OurTeam {
+  id String @id @default(uuid())
+
+  name        String
+  designation String
+
+  /// Optional short biography for the team member
+  bio String?
+
+  /// Optional email for the team member
+  email String?
+
+  /// Optional contact/phone for the team member
+  contact String?
+
+  imageId String?
+  image   FileInstance? @relation("OurTeamImage", fields: [imageId], references: [id], onDelete: SetNull)
+
+  site SiteType @default(JUPITER)
+
+  order Int @default(autoincrement())
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("our_team")
+  @@index([site])
+}

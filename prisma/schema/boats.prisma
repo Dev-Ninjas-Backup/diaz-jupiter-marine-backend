@@ -1,0 +1,115 @@
+model Boats {
+  id String @id @default(uuid())
+
+  listingId String @unique
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name        String
+  price       Float
+  buildYear   Int
+  description String?
+
+  // * Specifications
+  make         String
+  model        String
+  fuelType     String
+  class        String
+  material     String? // Material
+  condition    String
+  engineType   String?
+  propType     String?
+  propMaterial String?
+
+  // * Features
+  electronics         String[]
+  insideEquipment     String[]
+  outsideEquipment    String[]
+  electricalEquipment String[]
+  covers              String[]
+  additionalEquipment String[]
+
+  // numeric dimensions
+  length Float // total feet, e.g., 36.5 = 36'6"
+  beam   Float? // total feet (Beam Size)
+  draft  Float? // total feet (Max Draft)
+
+  enginesNumber Int
+  cabinsNumber  Int? // Number of Cabins
+  headsNumber   Int? // Number of Heads
+
+  // Address
+  city  String
+  state String
+  zip   String
+
+  // Extra details
+  extraDetails Json? // Stores array of { key, value }
+
+  status BoatListingStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  // Media
+  videoURL String?
+
+  // Relations
+  engines BoatEngine[]
+  images  BoatImage[]
+  leads   Lead[]
+
+  @@map("boats")
+}
+
+enum BoatListingStatus {
+  DRAFT
+  PENDING
+  ACTIVE
+  INACTIVE
+  SOLD
+}
+
+model BoatEngine {
+  id String @id @default(uuid())
+
+  hours      Int?  // Hours
+  horsepower Int?  // Total Power (HP)
+
+  make  String?  // Make (optional)
+  model String?
+
+  fuelType      String?  // Engine Type
+  propellerType String?
+
+  boatId String
+  boat   Boats  @relation(fields: [boatId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("boat_engines")
+}
+
+model BoatImage {
+  id String @id @default(uuid())
+
+  boatId String
+  boat   Boats  @relation(fields: [boatId], references: [id], onDelete: Cascade)
+
+  fileId String
+  file   FileInstance @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  imageType BoatImageType
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("boat_images")
+}
+
+enum BoatImageType {
+  COVER
+  GALLERY
+}

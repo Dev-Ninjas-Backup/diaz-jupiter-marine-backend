@@ -1,0 +1,36 @@
+model YachtBrokerListing {
+  id                String   @id @default(uuid())
+  externalId        String   @unique
+  manufacturer      String?
+  model             String?
+  year              Int?
+  vesselName        String?
+  priceUsd          Float?
+  priceHidden       Boolean  @default(false)
+  city              String?
+  state             String?
+  country           String?
+  displayLengthFeet Float?
+  beamFeet          Float?
+  beamInch          Float?
+  fuelType          String?
+  hullMaterial      String?
+  category          String?
+  condition         String?
+  status            String?
+  description       String?
+  summary           String?
+  notableUpgrades   String?
+  maxDraftFeet      Float?
+  cabinCount        Int?
+  headCount         Int?
+  engineQty         Int?
+  displayPicture    Json?
+  gallery           Json?
+  engines           Json?
+  lastSyncedAt      DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("yachtbroker_listings")
+}

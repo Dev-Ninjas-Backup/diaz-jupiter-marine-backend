@@ -1,0 +1,41 @@
+model BoatsComListing {
+  id                    String   @id @default(uuid())
+  documentId            String   @unique
+  listingTitle          String?
+  makeString            String?
+  model                 String?
+  modelYear             Int?
+  price                 Float?
+  originalPrice         Float?
+  saleClassCode         String?
+  boatCategoryCode      String?
+  boatHullMaterialCode  String?
+  nominalLength         Float?
+  lengthOverall         Float?
+  beamMeasure           Float?
+  numberOfEngines       Int?
+  headsCountNumeric     Int?
+  boatName              String?
+  description           String?
+  additionalDescription String?
+  city                  String?
+  state                 String?
+  country               String?
+  stockNumber           String?
+  boatHullId            String?
+  fuelTankCapacity      String?
+  dryWeightMeasure      String?
+  bridgeClearance       String?
+  maxPassengers         Int?
+  lastModificationDate  String?
+  itemReceivedDate      String?
+  salesStatus           String?
+  images                Json?
+  videos                Json?
+  engines               Json?
+  lastSyncedAt          DateTime @default(now())
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("boats_com_listings")
+}
