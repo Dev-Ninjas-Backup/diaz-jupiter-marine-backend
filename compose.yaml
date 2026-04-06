@@ -11,7 +11,7 @@ services:
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://postgres:postgres@db:5432/${PACKAGE_NAME}_db
-      BASE_URL: http://0.0.0.0:5052/api
+      BASE_URL: ${BASE_URL}
       PORT: 5052
       ENABLE_CRON: false
     ports:
