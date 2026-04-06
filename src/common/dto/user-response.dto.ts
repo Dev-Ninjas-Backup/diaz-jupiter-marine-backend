@@ -43,6 +43,9 @@ export class UserResponseDto {
   role: UserRole;
 
   @Expose()
+  permissions: string[];
+
+  @Expose()
   status: UserStatus;
 
   @Expose()
