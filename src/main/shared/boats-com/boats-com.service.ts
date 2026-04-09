@@ -75,14 +75,12 @@ export class BoatsComService {
 
   @HandleError('Failed to get boats.com AI-formatted listings')
   async getAiFormat(query: AiQueryDto) {
-    const { page, limit } = query;
-    const paginate = page != null || limit != null;
-    const p = page ?? 1;
-    const l = limit ?? 10;
+    const { page = 1, limit = 10 } = query;
 
     const [listings, total] = await Promise.all([
       this.prisma.client.boatsComListing.findMany({
-        ...(paginate ? { skip: (p - 1) * l, take: l } : {}),
+        skip: (page - 1) * limit,
+        take: limit,
         orderBy: { lastSyncedAt: 'desc' },
       }),
       this.prisma.client.boatsComListing.count(),
@@ -156,7 +154,7 @@ export class BoatsComService {
 
     return successPaginatedResponse(
       data,
-      { page: p, limit: paginate ? l : total, total },
+      { page, limit, total },
       'Boats found successfully from Inventory API',
     );
   }

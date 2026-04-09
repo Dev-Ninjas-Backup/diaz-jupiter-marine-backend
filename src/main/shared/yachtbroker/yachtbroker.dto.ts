@@ -1,27 +1,8 @@
 import { PaginationDto } from '@/common/dto/pagination.dto';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
-export class AiQueryDto {
-  @ApiPropertyOptional({
-    description: 'Page number (omit to return all boats)',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  page?: number;
-
-  @ApiPropertyOptional({
-    description: 'Items per page (omit to return all boats)',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  limit?: number;
-}
+export class AiQueryDto extends PaginationDto {}
 
 export class YachtBrokerFilterDto extends PaginationDto {
   @ApiPropertyOptional({ description: 'Filter by manufacturer' })

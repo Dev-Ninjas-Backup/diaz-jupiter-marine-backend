@@ -79,14 +79,12 @@ export class YachtBrokerService {
 
   @HandleError('Failed to get YachtBroker AI-formatted listings')
   async getAiFormat(query: AiQueryDto) {
-    const { page, limit } = query;
-    const paginate = page != null || limit != null;
-    const p = page ?? 1;
-    const l = limit ?? 10;
+    const { page = 1, limit = 10 } = query;
 
     const [listings, total] = await Promise.all([
       this.prisma.client.yachtBrokerListing.findMany({
-        ...(paginate ? { skip: (p - 1) * l, take: l } : {}),
+        skip: (page - 1) * limit,
+        take: limit,
         orderBy: { lastSyncedAt: 'desc' },
       }),
       this.prisma.client.yachtBrokerListing.count(),
@@ -174,7 +172,7 @@ export class YachtBrokerService {
 
     return successPaginatedResponse(
       data,
-      { page: p, limit: paginate ? l : total, total },
+      { page, limit, total },
       'Boats found successfully from Inventory API',
     );
   }
