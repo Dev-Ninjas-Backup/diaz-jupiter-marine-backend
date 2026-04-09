@@ -308,6 +308,58 @@ export class YachtBrokerSyncService {
   }
 
   /**
+   * Import vessel records pushed directly from the frontend browser.
+   * Uses the same mapVessel / upsert logic as the scheduled sync — no DB schema changes.
+   */
+  async importFromFrontend(
+    vessels: Record<string, unknown>[],
+  ): Promise<YachtBrokerSyncResult> {
+    this.logger.log(
+      `[YachtBrokerSync] Importing ${vessels.length} vessels from frontend`,
+    );
+    let added = 0;
+    let updated = 0;
+
+    for (const vessel of vessels) {
+      if (!vessel.ID) continue;
+
+      try {
+        const mapped = this.mapVessel(vessel);
+        const externalId = mapped.externalId;
+
+        const existing = await this.prisma.client.yachtBrokerListing.findUnique(
+          {
+            where: { externalId },
+            select: { id: true },
+          },
+        );
+
+        await this.prisma.client.yachtBrokerListing.upsert({
+          where: { externalId },
+          create: mapped,
+          update: { ...mapped },
+        });
+
+        if (existing) {
+          updated++;
+        } else {
+          added++;
+        }
+      } catch (err) {
+        this.logger.error(
+          `[YachtBrokerSync] Failed to import vessel ID=${vessel.ID}`,
+          err,
+        );
+      }
+    }
+
+    this.logger.log(
+      `[YachtBrokerSync] Import done. Added: ${added}, Updated: ${updated}`,
+    );
+    return { added, updated, total: added + updated };
+  }
+
+  /**
    * - **Initial backfill** (no rows in DB): always walks every page, regardless of `mode`.
    * - **`mode: 'full'`** (default for manual admin): every page.
    * - **`mode: 'incremental'`** (default for scheduled cron): pages 1 and last only.
