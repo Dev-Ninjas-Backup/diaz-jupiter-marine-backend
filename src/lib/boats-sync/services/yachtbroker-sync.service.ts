@@ -62,8 +62,10 @@ export class YachtBrokerSyncService {
   private readonly logger = new Logger(YachtBrokerSyncService.name);
   private readonly apiKey: string;
   private readonly brokerId: string;
-  /** Full URL to the vessel listing endpoint, e.g. https://jupitermarinesales.com/api/yachtbroker/vessel */
+  /** Full URL to the vessel listing endpoint */
   private readonly baseUrl: string;
+  /** Optional secret sent as X-Proxy-Secret when routing through the proxy server */
+  private readonly proxySecret: string | null;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -75,6 +77,8 @@ export class YachtBrokerSyncService {
     );
     const rawUrl = this.config.getOrThrow<string>(ENVEnum.YACHTBROKER_API_URL);
     this.baseUrl = normalizeYachtBrokerVesselUrl(rawUrl);
+    this.proxySecret =
+      this.config.get<string>(ENVEnum.YACHTBROKER_PROXY_SECRET) || null;
     if (rawUrl !== this.baseUrl) {
       this.logger.log(
         `[YachtBrokerSync] Normalized YACHTBROKER_API_URL → ${this.baseUrl}`,
@@ -82,13 +86,17 @@ export class YachtBrokerSyncService {
     }
   }
 
-  private get browserHeaders() {
-    return {
+  private get browserHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {
       'User-Agent':
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
       Accept: 'application/json, text/plain, */*',
       'Accept-Language': 'en-US,en;q=0.9',
     };
+    if (this.proxySecret) {
+      headers['X-Proxy-Secret'] = this.proxySecret;
+    }
+    return headers;
   }
 
   private toJsonOrNull(
