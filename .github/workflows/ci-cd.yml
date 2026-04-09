@@ -83,13 +83,13 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Copy Compose File
+      - name: Copy Compose and Caddy File
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
-          source: 'compose.yaml'
+          source: 'compose.yaml, Caddyfile'
           target: '/home/${{ secrets.VPS_USER }}/server'
 
       - name: Deploy via SSH
