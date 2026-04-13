@@ -72,6 +72,34 @@ export class BoatsSyncAdminController {
     return successResponse(result, 'Boats.com import completed successfully');
   }
 
+  @Post('yachtbroker/import')
+  @RequirePermission(PermissionEnum.BOATS_SYNC)
+  @ApiOperation({
+    summary:
+      'Import YachtBroker vessel listings pushed from the frontend browser',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['vessels'],
+      properties: {
+        vessels: { type: 'array', items: { type: 'object' } },
+      },
+    },
+  })
+  @HandleError('Failed to import YachtBroker listings')
+  async importYachtBrokerFromFrontend(
+    @Body() body: { vessels: Record<string, unknown>[] },
+  ) {
+    if (!Array.isArray(body?.vessels)) {
+      throw new BadRequestException('body.vessels must be an array');
+    }
+    const result = await this.yachtBrokerSyncService.importFromFrontend(
+      body.vessels,
+    );
+    return successResponse(result, 'YachtBroker import completed successfully');
+  }
+
   @Post('all')
   @RequirePermission(PermissionEnum.BOATS_SYNC)
   @ApiOperation({

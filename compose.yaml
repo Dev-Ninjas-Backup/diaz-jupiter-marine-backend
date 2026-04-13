@@ -87,28 +87,34 @@ services:
       timeout: 5s
       retries: 5
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: ${PACKAGE_NAME}_pgadmin
-    restart: unless-stopped
+  caddy:
+    image: caddy
+    container_name: jupiterm_caddy
+    restart: always
     profiles:
       - prod
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=${SUPER_ADMIN_EMAIL}
-      - PGADMIN_DEFAULT_PASSWORD=${SUPER_ADMIN_PASS}
-      - SCRIPT_NAME=/pgadmin
     ports:
-      - '8124:80'
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
     depends_on:
-      db:
-        condition: service_healthy
       server:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "caddy validate --config /etc/caddy/Caddyfile"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
 volumes:
   db_data:
   files-data:
   temp-data:
+  caddy_data:
+  caddy_config:
 
 networks:
   default:

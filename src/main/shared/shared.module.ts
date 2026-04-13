@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AboutUsModule } from './about-us/about-us.module';
 import { AuthModule } from './auth/auth.module';
+import { BoatLookupModule } from './boat-lookup/boat-lookup.module';
 import { BoatsComModule } from './boats-com/boats-com.module';
 import { BoatsModule } from './boats/boats.module';
 import { ContactModule } from './contact/contact.module';
@@ -21,6 +22,7 @@ import { YachtBrokerModule } from './yachtbroker/yachtbroker.module';
     BoatsModule,
     BoatsComModule,
     YachtBrokerModule,
+    BoatLookupModule,
     ContactModule,
     DailyLeadsModule,
     EmailSubscribeModule,

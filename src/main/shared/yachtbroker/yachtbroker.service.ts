@@ -26,6 +26,10 @@ export class YachtBrokerService {
       city,
       state,
       search,
+      lengthMin,
+      lengthMax,
+      maxPrice,
+      boatType,
     } = query;
     const skip = (page - 1) * limit;
 
@@ -43,14 +47,25 @@ export class YachtBrokerService {
     if (condition) {
       where.condition = { contains: condition, mode: 'insensitive' };
     }
-    if (category) {
-      where.category = { contains: category, mode: 'insensitive' };
+    // boatType is an alias for category
+    const categoryFilter = boatType ?? category;
+    if (categoryFilter) {
+      where.category = { contains: categoryFilter, mode: 'insensitive' };
     }
     if (city) {
       where.city = { contains: city, mode: 'insensitive' };
     }
     if (state) {
       where.state = { contains: state, mode: 'insensitive' };
+    }
+    if (lengthMin !== undefined || lengthMax !== undefined) {
+      where.displayLengthFeet = {
+        ...(lengthMin !== undefined ? { gte: lengthMin } : {}),
+        ...(lengthMax !== undefined ? { lte: lengthMax } : {}),
+      };
+    }
+    if (maxPrice !== undefined) {
+      where.priceUsd = { lte: maxPrice };
     }
     if (search) {
       where.OR = [
@@ -79,14 +94,12 @@ export class YachtBrokerService {
 
   @HandleError('Failed to get YachtBroker AI-formatted listings')
   async getAiFormat(query: AiQueryDto) {
-    const { page, limit } = query;
-    const paginate = page != null || limit != null;
-    const p = page ?? 1;
-    const l = limit ?? 10;
+    const { page = 1, limit = 10 } = query;
 
     const [listings, total] = await Promise.all([
       this.prisma.client.yachtBrokerListing.findMany({
-        ...(paginate ? { skip: (p - 1) * l, take: l } : {}),
+        skip: (page - 1) * limit,
+        take: limit,
         orderBy: { lastSyncedAt: 'desc' },
       }),
       this.prisma.client.yachtBrokerListing.count(),
@@ -174,7 +187,7 @@ export class YachtBrokerService {
 
     return successPaginatedResponse(
       data,
-      { page: p, limit: paginate ? l : total, total },
+      { page, limit, total },
       'Boats found successfully from Inventory API',
     );
   }
