@@ -7,12 +7,14 @@ import {
   GetMergedBoatsDto,
   GetSingleBoatDto,
 } from '../dto/get-boats.dto';
+import { SearchBoatsDto } from '../dto/search-boats.dto';
 import { GetAllBoatsMergedService } from '../services/get-all-boats-merged.service';
 import { GetAllBoatsService } from '../services/get-all-boats.service';
 import { GetAllCustomBoatsFloridaService } from '../services/get-all-custom-boats-florida.service';
 import { GetCustomBoatsService } from '../services/get-custom-boats.service';
 import { GetFilterOptionsService } from '../services/get-filter-options.service';
 import { PremiumDealsFloridaService } from '../services/premium-deals-florida.service';
+import { SearchBoatsService } from '../services/search-boats.service';
 
 @ApiTags('Shared -- Boats')
 @Controller('boats')
@@ -24,6 +26,7 @@ export class BoatsController {
     private readonly getAllCustomBoatsService: GetAllCustomBoatsFloridaService,
     private readonly premiumDealsFloridaService: PremiumDealsFloridaService,
     private readonly getFilterOptionsService: GetFilterOptionsService,
+    private readonly searchBoatsService: SearchBoatsService,
   ) {}
 
   @ApiOperation({ summary: 'Get all custom boats' })
@@ -39,6 +42,19 @@ export class BoatsController {
   @Get('filter-options')
   async getFilterOptions() {
     return this.getFilterOptionsService.getFilterOptions();
+  }
+
+  @ApiOperation({
+    summary: 'Search boats from Boats.com and YachtBroker with unified filters',
+    description:
+      'Single endpoint that queries both Boats.com and YachtBroker databases in parallel ' +
+      'using shared filter params (make, model, year, lengthMin/Max, maxPrice, boatType, location). ' +
+      'Results are normalized to a common shape and paginated sequentially across both sources. ' +
+      'Each record includes a `source` field ("boats-com" | "yachtbroker") and `id` for detail lookup.',
+  })
+  @Get('search')
+  async searchBoats(@Query() query: SearchBoatsDto) {
+    return this.searchBoatsService.search(query);
   }
 
   @ApiOperation({ summary: 'Get single custom boat details' })
