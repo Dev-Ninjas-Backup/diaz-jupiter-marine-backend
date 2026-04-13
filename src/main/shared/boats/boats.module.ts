@@ -10,6 +10,7 @@ import { GetAllCustomBoatsFloridaService } from './services/get-all-custom-boats
 import { GetCustomBoatsService } from './services/get-custom-boats.service';
 import { GetFilterOptionsService } from './services/get-filter-options.service';
 import { PremiumDealsFloridaService } from './services/premium-deals-florida.service';
+import { SearchBoatsService } from './services/search-boats.service';
 import { TopViewedBoatsService } from './services/top-viewed-boats.service';
 
 @Module({
@@ -28,6 +29,7 @@ import { TopViewedBoatsService } from './services/top-viewed-boats.service';
     GetFilterOptionsService,
     TopViewedBoatsService,
     PremiumDealsFloridaService,
+    SearchBoatsService,
   ],
 })
 export class BoatsModule {}
