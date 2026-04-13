@@ -26,6 +26,10 @@ export class YachtBrokerService {
       city,
       state,
       search,
+      lengthMin,
+      lengthMax,
+      maxPrice,
+      boatType,
     } = query;
     const skip = (page - 1) * limit;
 
@@ -43,14 +47,25 @@ export class YachtBrokerService {
     if (condition) {
       where.condition = { contains: condition, mode: 'insensitive' };
     }
-    if (category) {
-      where.category = { contains: category, mode: 'insensitive' };
+    // boatType is an alias for category
+    const categoryFilter = boatType ?? category;
+    if (categoryFilter) {
+      where.category = { contains: categoryFilter, mode: 'insensitive' };
     }
     if (city) {
       where.city = { contains: city, mode: 'insensitive' };
     }
     if (state) {
       where.state = { contains: state, mode: 'insensitive' };
+    }
+    if (lengthMin !== undefined || lengthMax !== undefined) {
+      where.displayLengthFeet = {
+        ...(lengthMin !== undefined ? { gte: lengthMin } : {}),
+        ...(lengthMax !== undefined ? { lte: lengthMax } : {}),
+      };
+    }
+    if (maxPrice !== undefined) {
+      where.priceUsd = { lte: maxPrice };
     }
     if (search) {
       where.OR = [

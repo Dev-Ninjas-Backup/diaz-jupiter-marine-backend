@@ -25,6 +25,10 @@ export class BoatsComService {
       city,
       state,
       search,
+      lengthMin,
+      lengthMax,
+      maxPrice,
+      boatType,
     } = query;
     const skip = (page - 1) * limit;
 
@@ -47,6 +51,18 @@ export class BoatsComService {
     }
     if (state) {
       where.state = { contains: state, mode: 'insensitive' };
+    }
+    if (lengthMin !== undefined || lengthMax !== undefined) {
+      where.nominalLength = {
+        ...(lengthMin !== undefined ? { gte: lengthMin } : {}),
+        ...(lengthMax !== undefined ? { lte: lengthMax } : {}),
+      };
+    }
+    if (maxPrice !== undefined) {
+      where.price = { lte: maxPrice };
+    }
+    if (boatType) {
+      where.boatCategoryCode = { contains: boatType, mode: 'insensitive' };
     }
     if (search) {
       where.OR = [
