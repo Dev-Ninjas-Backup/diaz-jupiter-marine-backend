@@ -47,7 +47,6 @@ export class LeadDispatchService {
     });
   }
 
-
   async respondToDispatch(token: string): Promise<{
     leadId: number;
     memberEmail: string;
