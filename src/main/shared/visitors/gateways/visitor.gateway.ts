@@ -12,7 +12,6 @@ import { VisitorService } from '../services/visitor.service';
 
 @WebSocketGateway({
   cors: { origin: '*' },
-  path: '/ws',
 })
 export class VisitorGateway
   implements OnGatewayConnection, OnGatewayDisconnect

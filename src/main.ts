@@ -4,14 +4,46 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 import * as bodyParser from 'body-parser';
 import { AppModule } from './app.module';
 import { ENVEnum } from './common/enum/env.enum';
 import { AllExceptionsFilter } from './common/filter/http-exception.filter';
+import { ServerOptions } from 'socket.io';
+
+class SocketIoAdapter extends IoAdapter {
+  createIOServer(port: number, options?: ServerOptions) {
+    const server = super.createIOServer(port, {
+      ...options,
+      path: '/ws',
+      cors: {
+        origin: [
+          'http://localhost:3000',
+          'http://localhost:3001',
+          'http://localhost:3002',
+          'http://localhost:5173',
+          'http://localhost:5174',
+          'https://development.jupitermarinesales.com',
+          'https://jupitermarinesales.com',
+          'https://admin.jupitermarinesales.com',
+          'https://diaz-jupiter-marine-frontend.vercel.app',
+          'https://florida-yacht-dashboard.pages.dev',
+        ],
+        methods: ['GET', 'POST'],
+        credentials: true,
+      },
+      transports: ['websocket', 'polling'],
+      allowEIO3: true,
+    });
+    return server;
+  }
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
   const configService = app.get(ConfigService);
+
+  app.useWebSocketAdapter(new SocketIoAdapter(app));
 
   app.enableCors({
     origin: [
