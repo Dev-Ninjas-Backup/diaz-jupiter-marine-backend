@@ -230,7 +230,6 @@ export class LeadDispatchService {
       MEMBER_NAME: memberName,
       LEAD_NAME: lead.name,
       LEAD_EMAIL: lead.email,
-      LEAD_PRODUCT: lead.product || '—',
       LEAD_STATUS: lead.status,
       USER_ID: lead.userId,
       LEAD_TIME: this.formatDate(lead.createdAt),
