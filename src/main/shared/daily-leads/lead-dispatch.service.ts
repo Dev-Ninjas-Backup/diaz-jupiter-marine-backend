@@ -47,10 +47,7 @@ export class LeadDispatchService {
     });
   }
 
-  /**
-   * Mark a dispatch as responded using the unique token from the email link.
-   * Returns basic info so the caller can render a confirmation page.
-   */
+
   async respondToDispatch(token: string): Promise<{
     leadId: number;
     memberEmail: string;
