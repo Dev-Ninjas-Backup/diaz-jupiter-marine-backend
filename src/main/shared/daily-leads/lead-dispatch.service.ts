@@ -208,7 +208,7 @@ export class LeadDispatchService {
 
     const token = randomUUID();
     const baseUrl = this.configService.get<string>(ENVEnum.BASE_URL) ?? '';
-    const respondUrl = `${baseUrl}/daily_leads/respond?token=${token}`;
+    const respondUrl = `https://api.jupitermarinesales.com/api/daily_leads/respond?token=${token}`;
 
     // Persist dispatch record before sending email
     await this.prisma.client.leadEmailDispatch.create({
