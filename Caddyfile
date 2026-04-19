@@ -9,10 +9,27 @@ api.jupitermarinesales.com {
     }
   }
 
-  reverse_proxy /socket.io* server:5052
+  reverse_proxy /socket.io* server:5052 {
+    header_up X-Real-IP {remote}
+    header_up X-Forwarded-For {remote}
+    header_up X-Forwarded-Proto {scheme}
+    header_up Host {host}
+    header_up Connection {>Connection}
+    header_up Upgrade {>Upgrade}
+  }
+
+  reverse_proxy /ws* server:5052 {
+    header_up X-Real-IP {remote}
+    header_up X-Forwarded-For {remote}
+    header_up X-Forwarded-Proto {scheme}
+    header_up Host {host}
+    header_up Connection {>Connection}
+    header_up Upgrade {>Upgrade}
+  }
 
   @api {
     not path /socket.io*
+    not path /ws*
     not path /pgadmin*
   }
 
