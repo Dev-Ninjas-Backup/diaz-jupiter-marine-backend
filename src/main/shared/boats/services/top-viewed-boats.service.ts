@@ -39,10 +39,7 @@ export class TopViewedBoatsService {
               ? (listing.images as Record<string, unknown>[])
               : [];
             const firstImage = images[0] as Record<string, unknown> | undefined;
-            const imageUrl =
-              (firstImage?.Uri as string) ??
-              (firstImage?.url as string) ??
-              null;
+            const imageUrl = (firstImage?.uri as string) ?? null;
 
             return {
               listingId: documentId,
@@ -75,8 +72,9 @@ export class TopViewedBoatsService {
               unknown
             > | null;
             const imageUrl =
-              (displayPicture?.url as string) ??
-              (displayPicture?.Uri as string) ??
+              (displayPicture?.large as string) ??
+              (displayPicture?.hd as string) ??
+              (displayPicture?.medium as string) ??
               null;
 
             return {
