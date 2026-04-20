@@ -5,39 +5,102 @@ import { Injectable } from '@nestjs/common';
 export class TopViewedBoatsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private async getBoatPageViews(boatId: string): Promise<number> {
-    const page = `/search-listing/${boatId}`;
-
-    const result = await this.prisma.client.pageView.aggregate({
-      _sum: { count: true },
-      where: { page },
-    });
-
-    return result._sum.count ?? 0;
-  }
-
   async getTopViewedBoats() {
-    const boats = await this.prisma.client.boats.findMany({
-      include: {
-        images: {
-          include: { file: true },
-        },
+    // Aggregate page views across both boat detail page patterns
+    const topPages = await this.prisma.client.pageView.groupBy({
+      by: ['page'],
+      where: {
+        OR: [
+          { page: { startsWith: '/featured-boats/' } },
+          { page: { startsWith: '/florida-yacht-trader-mls/' } },
+        ],
       },
+      _sum: { count: true },
+      orderBy: { _sum: { count: 'desc' } },
+      take: 10,
     });
 
-    const boatsWithViews = await Promise.all(
-      boats.map(async (boat) => {
-        const pageViewCount = await this.getBoatPageViews(boat.id);
+    const results = await Promise.all(
+      topPages.map(
+        async (entry: { page: string; _sum: { count: number | null } }) => {
+          const viewCount = entry._sum.count ?? 0;
+          const page = entry.page;
 
-        return {
-          ...boat,
-          pageViewCount,
-        };
-      }),
+          if (page.startsWith('/featured-boats/')) {
+            const documentId = page.replace('/featured-boats/', '');
+            const listing = await this.prisma.client.boatsComListing.findUnique(
+              {
+                where: { documentId },
+              },
+            );
+            if (!listing) return null;
+
+            const images = Array.isArray(listing.images)
+              ? (listing.images as Record<string, unknown>[])
+              : [];
+            const firstImage = images[0] as Record<string, unknown> | undefined;
+            const imageUrl =
+              (firstImage?.Uri as string) ??
+              (firstImage?.url as string) ??
+              null;
+
+            return {
+              listingId: documentId,
+              source: 'boats-com' as const,
+              name:
+                listing.listingTitle ||
+                listing.boatName ||
+                `${listing.makeString ?? ''} ${listing.model ?? ''}`.trim(),
+              make: listing.makeString ?? null,
+              model: listing.model ?? null,
+              buildYear: listing.modelYear ?? null,
+              price: listing.price ?? null,
+              city: listing.city ?? null,
+              state: listing.state ?? null,
+              imageUrl,
+              viewCount,
+            };
+          }
+
+          if (page.startsWith('/florida-yacht-trader-mls/')) {
+            const externalId = page.replace('/florida-yacht-trader-mls/', '');
+            const listing =
+              await this.prisma.client.yachtBrokerListing.findUnique({
+                where: { externalId },
+              });
+            if (!listing) return null;
+
+            const displayPicture = listing.displayPicture as Record<
+              string,
+              unknown
+            > | null;
+            const imageUrl =
+              (displayPicture?.url as string) ??
+              (displayPicture?.Uri as string) ??
+              null;
+
+            return {
+              listingId: externalId,
+              source: 'yachtbroker' as const,
+              name:
+                listing.vesselName ||
+                `${listing.manufacturer ?? ''} ${listing.model ?? ''}`.trim(),
+              make: listing.manufacturer ?? null,
+              model: listing.model ?? null,
+              buildYear: listing.year ?? null,
+              price: listing.priceUsd ?? null,
+              city: listing.city ?? null,
+              state: listing.state ?? null,
+              imageUrl,
+              viewCount,
+            };
+          }
+
+          return null;
+        },
+      ),
     );
 
-    boatsWithViews.sort((a, b) => b.pageViewCount - a.pageViewCount);
-
-    return boatsWithViews.slice(0, 10);
+    return results.filter(Boolean);
   }
 }
