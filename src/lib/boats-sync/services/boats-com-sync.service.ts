@@ -169,7 +169,7 @@ export class BoatsComSyncService {
 
     while (hasMore) {
       try {
-        const url = `${this.baseUrl}?key=${this.apiKey}&rows=${pageSize}&start=${start}`;
+        const url = `${this.baseUrl}?key=${this.apiKey}&rows=${pageSize}&start=${start}&salesstatus=active`;
         const { data } = await axios.get(url, { headers: this.browserHeaders });
 
         const results: Record<string, unknown>[] = data.results ?? [];
