@@ -1,6 +1,9 @@
 import { PermissionEnum } from '@/common/enum/permission.enum';
 import { HandleError } from '@/common/error/handle-error.decorator';
-import { RequirePermission } from '@/common/jwt/jwt.decorator';
+import {
+  RequirePermission,
+  ValidateSuperAdminOnly,
+} from '@/common/jwt/jwt.decorator';
 import { successResponse } from '@/common/utils/response.util';
 import { BoatsComSyncService } from '@/lib/boats-sync/services/boats-com-sync.service';
 import { YachtBrokerSyncService } from '@/lib/boats-sync/services/yachtbroker-sync.service';
@@ -9,10 +12,11 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Post,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags, ApiBody } from '@nestjs/swagger';
 
 @ApiTags('Admin -- Boats Sync')
 @Controller('admin/boats-sync')
@@ -114,6 +118,22 @@ export class BoatsSyncAdminController {
     return successResponse(
       { boatsCom: boatsComResult, yachtBroker: yachtBrokerResult },
       'All boats sync completed successfully',
+    );
+  }
+
+  @Delete('boats-com/reset')
+  @ValidateSuperAdminOnly()
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary:
+      'Delete all boats.com listings from the database (superadmin only)',
+  })
+  @HandleError('Failed to reset boats.com data')
+  async resetBoatsCom() {
+    const { count } = await this.prisma.client.boatsComListing.deleteMany({});
+    return successResponse(
+      { deletedCount: count },
+      `Boats.com data reset successfully. ${count} records deleted.`,
     );
   }
 
