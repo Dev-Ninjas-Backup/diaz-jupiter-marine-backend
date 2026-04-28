@@ -2,6 +2,7 @@
  * HTML template for new daily lead email alert to admin.
  * Placeholders: LEAD_NAME, LEAD_EMAIL, STATUS, USER_ID, LEAD_TIME,
  * TIMESTAMP, CLIENT_NAME, YEAR, DASHBOARD_URL
+ * Conditional: PRODUCT_ROW (injected as full <div> or empty string)
  */
 export const NEW_LEAD_ALERT_HTML = `
 <!DOCTYPE html>
@@ -71,6 +72,7 @@ export const NEW_LEAD_ALERT_HTML = `
                         <span class="info-label">🕐 Received:</span>
                         <span class="info-value">{{LEAD_TIME}}</span>
                     </div>
+                    {{PRODUCT_ROW}}
                 </div>
             </div>
             <div class="action-buttons">
@@ -97,11 +99,22 @@ export type NewLeadAlertVars = {
   CLIENT_NAME: string;
   YEAR: string;
   DASHBOARD_URL: string;
+  PRODUCT?: string;
 };
 
 export function getNewLeadAlertHtml(vars: NewLeadAlertVars): string {
   let html = NEW_LEAD_ALERT_HTML;
-  for (const [key, value] of Object.entries(vars)) {
+
+  const productRow = vars.PRODUCT
+    ? `<div class="info-row" style="display:flex;padding:14px 0;border-bottom:1px solid #f5f5f5;">
+                        <span class="info-label" style="font-weight:700;color:#5a6c7d;min-width:130px;font-size:13px;text-transform:uppercase;letter-spacing:0.3px;">🚢 Product:</span>
+                        <span class="info-value" style="color:#2c3e50;font-size:14px;flex:1;font-weight:500;">${vars.PRODUCT}</span>
+                    </div>`
+    : '';
+  html = html.replace('{{PRODUCT_ROW}}', productRow);
+
+  const { PRODUCT: _product, ...rest } = vars;
+  for (const [key, value] of Object.entries(rest)) {
     html = html.replace(new RegExp(`{{${key}}}`, 'g'), String(value ?? ''));
   }
   return html;
