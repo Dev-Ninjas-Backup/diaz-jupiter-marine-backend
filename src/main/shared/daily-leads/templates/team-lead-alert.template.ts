@@ -99,20 +99,27 @@ export type TeamLeadAlertVars = {
   DASHBOARD_URL: string;
   YEAR: string;
   PRODUCT?: string;
+  PRODUCT_URL?: string;
 };
 
 export function getTeamLeadAlertHtml(vars: TeamLeadAlertVars): string {
   let html = TEAM_LEAD_ALERT_HTML;
 
-  const productRow = vars.PRODUCT
+  const productDisplay = vars.PRODUCT
+    ? vars.PRODUCT_URL
+      ? `<a href="${vars.PRODUCT_URL}" style="color:#1976D2;text-decoration:none;font-weight:600;">${vars.PRODUCT}</a>`
+      : vars.PRODUCT
+    : null;
+
+  const productRow = productDisplay
     ? `<div class="info-row" style="display:flex;padding:12px 0;border-bottom:1px solid #f5f5f5;">
                         <span class="info-label" style="font-weight:700;color:#5a6c7d;min-width:130px;font-size:13px;text-transform:uppercase;letter-spacing:0.3px;">🚢 Product</span>
-                        <span class="info-value" style="color:#2c3e50;font-size:14px;flex:1;font-weight:500;">${vars.PRODUCT}</span>
+                        <span class="info-value" style="color:#2c3e50;font-size:14px;flex:1;font-weight:500;">${productDisplay}</span>
                     </div>`
     : '';
   html = html.replace('{{PRODUCT_ROW}}', productRow);
 
-  const { PRODUCT: _product, ...rest } = vars;
+  const { PRODUCT: _product, PRODUCT_URL: _productUrl, ...rest } = vars;
   for (const [key, value] of Object.entries(rest)) {
     html = html.replace(new RegExp(`{{${key}}}`, 'g'), String(value ?? ''));
   }

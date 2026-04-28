@@ -21,6 +21,7 @@ export type DailyLeadResponse = {
   name: string;
   email: string;
   product: string;
+  product_url: string | null;
   status: string;
   created_at: string;
   updated_at: string;
@@ -48,6 +49,7 @@ function toResponseFormat(lead: DailyLead): DailyLeadResponse {
     name: lead.name,
     email: lead.email,
     product: lead.product,
+    product_url: lead.productUrl ?? null,
     status: lead.status,
     created_at: lead.createdAt.toISOString(),
     updated_at: lead.updatedAt.toISOString(),
@@ -197,6 +199,7 @@ export class DailyLeadsService {
           name: dto.name,
           email: dto.email,
           product,
+          productUrl: dto.product_url ?? null,
           status: dto.status ?? 'not contacted',
         },
       });
@@ -262,6 +265,7 @@ export class DailyLeadsService {
       YEAR: String(now.getUTCFullYear()),
       DASHBOARD_URL: dashboardUrl,
       PRODUCT: lead.product || undefined,
+      PRODUCT_URL: lead.productUrl || undefined,
     });
 
     const text = `New Lead: ${lead.name} (${lead.email}). Product: ${lead.product || '—'}. Status: ${lead.status}. User ID: ${lead.userId}. Received: ${lead.createdAt.toISOString()}.`;

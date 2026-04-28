@@ -22,6 +22,11 @@ export class CreateDailyLeadDto {
   @IsOptional()
   product?: string;
 
+  @ApiProperty({ example: 'https://jupitermarinesales.com/featured-boats/12345', required: false })
+  @IsString()
+  @IsOptional()
+  product_url?: string;
+
   @ApiProperty({ example: 'not contacted', required: false })
   @IsString()
   @IsOptional()

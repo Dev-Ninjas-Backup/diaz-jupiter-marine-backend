@@ -233,6 +233,7 @@ export class LeadDispatchService {
       DASHBOARD_URL: baseUrl || 'https://admin.jupitermarinesales.com/',
       YEAR: String(new Date().getUTCFullYear()),
       PRODUCT: lead.product || undefined,
+      PRODUCT_URL: lead.productUrl || undefined,
     });
 
     const text = `New lead assigned: ${lead.name} (${lead.email}). Please respond within 10 minutes: ${respondUrl}`;
