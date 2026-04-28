@@ -1,12 +1,13 @@
 model DailyLead {
-  id        Int      @id @default(autoincrement())
-  userId    String   @map("user_id")
-  name      String
-  email     String
-  product   String
-  status    String   @default("not contacted")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  id         Int      @id @default(autoincrement())
+  userId     String   @map("user_id")
+  name       String
+  email      String
+  product    String
+  productUrl String?  @map("product_url")
+  status     String   @default("not contacted")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
 
   dispatches LeadEmailDispatch[]
 
