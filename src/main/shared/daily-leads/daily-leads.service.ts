@@ -261,6 +261,7 @@ export class DailyLeadsService {
       CLIENT_NAME: 'Admin',
       YEAR: String(now.getUTCFullYear()),
       DASHBOARD_URL: dashboardUrl,
+      PRODUCT: lead.product || undefined,
     });
 
     const text = `New Lead: ${lead.name} (${lead.email}). Product: ${lead.product || '—'}. Status: ${lead.status}. User ID: ${lead.userId}. Received: ${lead.createdAt.toISOString()}.`;
