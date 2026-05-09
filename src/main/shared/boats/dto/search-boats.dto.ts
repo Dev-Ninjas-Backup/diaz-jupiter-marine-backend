@@ -59,4 +59,13 @@ export class SearchBoatsDto extends PaginationDto {
   @IsOptional()
   @IsString()
   location?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Free-text keyword — matches boat name, make, model, description, or category',
+    example: 'Sea Ray',
+  })
+  @IsOptional()
+  @IsString()
+  keyword?: string;
 }
