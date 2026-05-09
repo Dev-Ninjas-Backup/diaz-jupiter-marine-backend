@@ -69,6 +69,7 @@ export class SearchBoatsService {
       maxPrice,
       boatType,
       location,
+      keyword,
     } = query;
 
     const globalOffset = (page - 1) * limit;
@@ -92,12 +93,30 @@ export class SearchBoatsService {
       };
     }
     if (maxPrice !== undefined) boatsComWhere.price = { lte: maxPrice };
+
+    const boatsComAndConditions: Prisma.BoatsComListingWhereInput[] = [];
     if (location) {
-      boatsComWhere.OR = [
-        { city: { contains: location, mode: 'insensitive' } },
-        { state: { contains: location, mode: 'insensitive' } },
-      ];
+      boatsComAndConditions.push({
+        OR: [
+          { city: { contains: location, mode: 'insensitive' } },
+          { state: { contains: location, mode: 'insensitive' } },
+        ],
+      });
     }
+    if (keyword) {
+      boatsComAndConditions.push({
+        OR: [
+          { listingTitle: { contains: keyword, mode: 'insensitive' } },
+          { makeString: { contains: keyword, mode: 'insensitive' } },
+          { model: { contains: keyword, mode: 'insensitive' } },
+          { boatName: { contains: keyword, mode: 'insensitive' } },
+          { description: { contains: keyword, mode: 'insensitive' } },
+          { boatCategoryCode: { contains: keyword, mode: 'insensitive' } },
+        ],
+      });
+    }
+    if (boatsComAndConditions.length > 0)
+      boatsComWhere.AND = boatsComAndConditions;
 
     // ── YachtBroker where clause ───────────────────────────────────────────
     const yachtBrokerWhere: Prisma.YachtBrokerListingWhereInput = {};
@@ -116,12 +135,30 @@ export class SearchBoatsService {
       };
     }
     if (maxPrice !== undefined) yachtBrokerWhere.priceUsd = { lte: maxPrice };
+
+    const yachtBrokerAndConditions: Prisma.YachtBrokerListingWhereInput[] = [];
     if (location) {
-      yachtBrokerWhere.OR = [
-        { city: { contains: location, mode: 'insensitive' } },
-        { state: { contains: location, mode: 'insensitive' } },
-      ];
+      yachtBrokerAndConditions.push({
+        OR: [
+          { city: { contains: location, mode: 'insensitive' } },
+          { state: { contains: location, mode: 'insensitive' } },
+        ],
+      });
     }
+    if (keyword) {
+      yachtBrokerAndConditions.push({
+        OR: [
+          { vesselName: { contains: keyword, mode: 'insensitive' } },
+          { manufacturer: { contains: keyword, mode: 'insensitive' } },
+          { model: { contains: keyword, mode: 'insensitive' } },
+          { description: { contains: keyword, mode: 'insensitive' } },
+          { summary: { contains: keyword, mode: 'insensitive' } },
+          { category: { contains: keyword, mode: 'insensitive' } },
+        ],
+      });
+    }
+    if (yachtBrokerAndConditions.length > 0)
+      yachtBrokerWhere.AND = yachtBrokerAndConditions;
 
     // ── Step 1: count both sources in parallel ─────────────────────────────
     const [totalBoatsCom, totalYachtBroker] = await Promise.all([
