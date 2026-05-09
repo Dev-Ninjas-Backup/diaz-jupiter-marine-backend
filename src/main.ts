@@ -67,7 +67,7 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter());
 
   // * set global prefix before all routes & swagger
-  app.setGlobalPrefix('api', { exclude: ['/', 'health'] });
+  app.setGlobalPrefix('api', { exclude: ['/'] });
 
   // * Swagger config with Bearer Auth
   const config = new DocumentBuilder()
