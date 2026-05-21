@@ -2,7 +2,7 @@
  * HTML template for new daily lead email alert to admin.
  * Placeholders: LEAD_NAME, LEAD_EMAIL, STATUS, USER_ID, LEAD_TIME,
  * TIMESTAMP, CLIENT_NAME, YEAR, DASHBOARD_URL
- * Conditional: PRODUCT_ROW (injected as full <div> or empty string)
+ * Conditional: PRODUCT_ROW (injected as full <tr> pair or empty string)
  */
 export const NEW_LEAD_ALERT_HTML = `
 <!DOCTYPE html>
@@ -23,14 +23,8 @@ export const NEW_LEAD_ALERT_HTML = `
         .email-content { padding: 30px; }
         .greeting { font-size: 15px; color: #2c3e50; margin-bottom: 28px; line-height: 1.7; }
         .lead-card { background-color: #E3F2FD; border: 1px solid #90CAF9; border-left: 5px solid #2196F3; border-radius: 12px; padding: 28px; margin-bottom: 28px; }
-        .lead-card h2 { font-size: 22px; color: #1976D2; margin-bottom: 22px; display: flex; align-items: center; gap: 12px; font-weight: 700; }
-        .lead-icon { display: inline-block; width: 32px; height: 32px; background-color: #2196F3; border-radius: 50%; text-align: center; line-height: 32px; font-size: 16px; color: #ffffff; }
-        .lead-info { background-color: #ffffff; border-radius: 10px; padding: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
-        .info-row { width: 100%; border-bottom: 1px solid #f5f5f5; border-collapse: collapse; }
-        .info-row:last-child { border-bottom: none; }
-        .info-label { font-weight: 700; color: #5a6c7d; width: 130px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.3px; padding: 14px 12px 14px 0; vertical-align: top; white-space: nowrap; }
-        .info-value { color: #2c3e50; font-size: 14px; font-weight: 500; padding: 14px 0; word-break: break-all; overflow-wrap: anywhere; }
-        .info-value a { color: #1976D2; text-decoration: none; font-weight: 600; }
+        .lead-card h2 { font-size: 22px; color: #1976D2; margin-bottom: 22px; font-weight: 700; }
+        .lead-info { background-color: #ffffff; border-radius: 10px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
         .action-buttons { margin-top: 28px; }
         .btn { display: inline-block; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px; text-align: center; background-color: #2196F3; color: #ffffff !important; margin-right: 12px; margin-bottom: 8px; }
         .btn-secondary { background-color: #ffffff; color: #1976D2 !important; border: 2px solid #2196F3; }
@@ -51,24 +45,35 @@ export const NEW_LEAD_ALERT_HTML = `
                 <p>A new daily lead has been submitted. Here are the details:</p>
             </div>
             <div class="lead-card">
-                <h2>
-                    <span class="lead-icon">👤</span>
-                    {{LEAD_NAME}}
-                </h2>
+                <h2>👤 {{LEAD_NAME}}</h2>
                 <div class="lead-info">
-                    <table class="info-row" width="100%" cellpadding="0" cellspacing="0" style="width:100%;border-bottom:1px solid #f5f5f5;border-collapse:collapse;">
-                        <tr><td class="info-label" style="font-weight:700;color:#5a6c7d;width:130px;font-size:13px;text-transform:uppercase;letter-spacing:0.3px;padding:14px 12px 14px 0;vertical-align:top;white-space:nowrap;">📧 EMAIL:</td><td class="info-value" style="color:#2c3e50;font-size:14px;font-weight:500;padding:14px 0;word-break:break-all;overflow-wrap:anywhere;"><a href="mailto:{{LEAD_EMAIL}}" style="color:#1976D2;text-decoration:none;font-weight:600;">{{LEAD_EMAIL}}</a></td></tr>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
+                        <tr>
+                            <td style="font-weight:700;color:#5a6c7d;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;padding:10px 0 2px;border-top:1px solid #f0f0f0;">📧 Email</td>
+                        </tr>
+                        <tr>
+                            <td style="color:#1976D2;font-size:14px;font-weight:600;padding:0 0 10px;overflow-wrap:break-word;word-wrap:break-word;word-break:break-word;"><a href="mailto:{{LEAD_EMAIL}}" style="color:#1976D2;text-decoration:none;font-weight:600;overflow-wrap:break-word;word-wrap:break-word;word-break:break-word;">{{LEAD_EMAIL}}</a></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:#5a6c7d;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;padding:10px 0 2px;border-top:1px solid #f0f0f0;">📊 Status</td>
+                        </tr>
+                        <tr>
+                            <td style="color:#2c3e50;font-size:14px;font-weight:500;padding:0 0 10px;overflow-wrap:break-word;word-wrap:break-word;">{{STATUS}}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:#5a6c7d;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;padding:10px 0 2px;border-top:1px solid #f0f0f0;">🆔 User ID</td>
+                        </tr>
+                        <tr>
+                            <td style="color:#2c3e50;font-size:14px;font-weight:500;padding:0 0 10px;overflow-wrap:break-word;word-wrap:break-word;">{{USER_ID}}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:700;color:#5a6c7d;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;padding:10px 0 2px;border-top:1px solid #f0f0f0;">🕐 Received</td>
+                        </tr>
+                        <tr>
+                            <td style="color:#2c3e50;font-size:14px;font-weight:500;padding:0 0 10px;overflow-wrap:break-word;word-wrap:break-word;">{{LEAD_TIME}}</td>
+                        </tr>
+                        {{PRODUCT_ROW}}
                     </table>
-                    <table class="info-row" width="100%" cellpadding="0" cellspacing="0" style="width:100%;border-bottom:1px solid #f5f5f5;border-collapse:collapse;">
-                        <tr><td class="info-label" style="font-weight:700;color:#5a6c7d;width:130px;font-size:13px;text-transform:uppercase;letter-spacing:0.3px;padding:14px 12px 14px 0;vertical-align:top;white-space:nowrap;">🆔 USER ID:</td><td class="info-value" style="color:#2c3e50;font-size:14px;font-weight:500;padding:14px 0;word-break:break-all;overflow-wrap:anywhere;">{{USER_ID}}</td></tr>
-                    </table>
-                    <table class="info-row" width="100%" cellpadding="0" cellspacing="0" style="width:100%;border-bottom:1px solid #f5f5f5;border-collapse:collapse;">
-                        <tr><td class="info-label" style="font-weight:700;color:#5a6c7d;width:130px;font-size:13px;text-transform:uppercase;letter-spacing:0.3px;padding:14px 12px 14px 0;vertical-align:top;white-space:nowrap;">📊 STATUS:</td><td class="info-value" style="color:#2c3e50;font-size:14px;font-weight:500;padding:14px 0;word-break:break-all;overflow-wrap:anywhere;">{{STATUS}}</td></tr>
-                    </table>
-                    <table class="info-row" width="100%" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
-                        <tr><td class="info-label" style="font-weight:700;color:#5a6c7d;width:130px;font-size:13px;text-transform:uppercase;letter-spacing:0.3px;padding:14px 12px 14px 0;vertical-align:top;white-space:nowrap;">🕐 RECEIVED:</td><td class="info-value" style="color:#2c3e50;font-size:14px;font-weight:500;padding:14px 0;word-break:break-all;overflow-wrap:anywhere;">{{LEAD_TIME}}</td></tr>
-                    </table>
-                    {{PRODUCT_ROW}}
                 </div>
             </div>
             <div class="action-buttons">
@@ -104,14 +109,17 @@ export function getNewLeadAlertHtml(vars: NewLeadAlertVars): string {
 
   const productDisplay = vars.PRODUCT
     ? vars.PRODUCT_URL
-      ? `<a href="${vars.PRODUCT_URL}" style="color:#1976D2;text-decoration:none;font-weight:600;">${vars.PRODUCT}</a>`
+      ? `<a href="${vars.PRODUCT_URL}" style="color:#1976D2;text-decoration:none;font-weight:600;overflow-wrap:break-word;word-wrap:break-word;word-break:break-word;">${vars.PRODUCT}</a>`
       : vars.PRODUCT
     : null;
 
   const productRow = productDisplay
-    ? `<table width="100%" cellpadding="0" cellspacing="0" style="width:100%;border-bottom:1px solid #f5f5f5;border-collapse:collapse;">
-                        <tr><td style="font-weight:700;color:#5a6c7d;width:130px;font-size:13px;text-transform:uppercase;letter-spacing:0.3px;padding:14px 12px 14px 0;vertical-align:top;white-space:nowrap;">🚢 PRODUCT:</td><td style="color:#2c3e50;font-size:14px;font-weight:500;padding:14px 0;word-break:break-all;overflow-wrap:anywhere;">${productDisplay}</td></tr>
-                    </table>`
+    ? `<tr>
+                            <td style="font-weight:700;color:#5a6c7d;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;padding:10px 0 2px;border-top:1px solid #f0f0f0;">🚢 Product</td>
+                        </tr>
+                        <tr>
+                            <td style="color:#2c3e50;font-size:14px;font-weight:500;padding:0 0 10px;overflow-wrap:break-word;word-wrap:break-word;word-break:break-word;">${productDisplay}</td>
+                        </tr>`
     : '';
   html = html.replace('{{PRODUCT_ROW}}', productRow);
 
