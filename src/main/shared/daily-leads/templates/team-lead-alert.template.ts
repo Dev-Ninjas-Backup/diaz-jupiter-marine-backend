@@ -25,10 +25,10 @@ export const TEAM_LEAD_ALERT_HTML = `
         .lead-card { background-color: #E3F2FD; border: 1px solid #90CAF9; border-left: 5px solid #2196F3; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
         .lead-card h2 { font-size: 20px; color: #1976D2; margin-bottom: 18px; font-weight: 700; }
         .lead-info { background-color: #ffffff; border-radius: 8px; padding: 20px; }
-        .info-row { display: flex; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+        .info-row { width: 100%; border-bottom: 1px solid #f5f5f5; border-collapse: collapse; }
         .info-row:last-child { border-bottom: none; }
-        .info-label { font-weight: 700; color: #5a6c7d; min-width: 130px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.3px; }
-        .info-value { color: #2c3e50; font-size: 14px; flex: 1; font-weight: 500; }
+        .info-label { font-weight: 700; color: #5a6c7d; width: 130px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.3px; padding: 12px 12px 12px 0; vertical-align: top; white-space: nowrap; }
+        .info-value { color: #2c3e50; font-size: 14px; font-weight: 500; padding: 12px 0; word-break: break-all; overflow-wrap: anywhere; }
         .info-value a { color: #1976D2; text-decoration: none; font-weight: 600; }
         .respond-btn { display: block; text-align: center; margin: 24px 0; }
         .respond-btn a { display: inline-block; padding: 16px 40px; background-color: #2196F3; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px; letter-spacing: 0.5px; }
@@ -55,22 +55,18 @@ export const TEAM_LEAD_ALERT_HTML = `
             <div class="lead-card">
                 <h2>👤 {{LEAD_NAME}}</h2>
                 <div class="lead-info">
-                    <div class="info-row">
-                        <span class="info-label">📧 Email</span>
-                        <span class="info-value"><a href="mailto:{{LEAD_EMAIL}}">{{LEAD_EMAIL}}</a></span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">📊 Status</span>
-                        <span class="info-value">{{LEAD_STATUS}}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">🆔 User ID</span>
-                        <span class="info-value">{{USER_ID}}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">🕐 Received</span>
-                        <span class="info-value">{{LEAD_TIME}}</span>
-                    </div>
+                    <table class="info-row" width="100%" cellpadding="0" cellspacing="0" style="width:100%;border-bottom:1px solid #f5f5f5;border-collapse:collapse;">
+                        <tr><td class="info-label" style="font-weight:700;color:#5a6c7d;width:130px;font-size:13px;text-transform:uppercase;letter-spacing:0.3px;padding:12px 12px 12px 0;vertical-align:top;white-space:nowrap;">📧 EMAIL</td><td class="info-value" style="color:#2c3e50;font-size:14px;font-weight:500;padding:12px 0;word-break:break-all;overflow-wrap:anywhere;"><a href="mailto:{{LEAD_EMAIL}}" style="color:#1976D2;text-decoration:none;font-weight:600;">{{LEAD_EMAIL}}</a></td></tr>
+                    </table>
+                    <table class="info-row" width="100%" cellpadding="0" cellspacing="0" style="width:100%;border-bottom:1px solid #f5f5f5;border-collapse:collapse;">
+                        <tr><td class="info-label" style="font-weight:700;color:#5a6c7d;width:130px;font-size:13px;text-transform:uppercase;letter-spacing:0.3px;padding:12px 12px 12px 0;vertical-align:top;white-space:nowrap;">📊 STATUS</td><td class="info-value" style="color:#2c3e50;font-size:14px;font-weight:500;padding:12px 0;word-break:break-all;overflow-wrap:anywhere;">{{LEAD_STATUS}}</td></tr>
+                    </table>
+                    <table class="info-row" width="100%" cellpadding="0" cellspacing="0" style="width:100%;border-bottom:1px solid #f5f5f5;border-collapse:collapse;">
+                        <tr><td class="info-label" style="font-weight:700;color:#5a6c7d;width:130px;font-size:13px;text-transform:uppercase;letter-spacing:0.3px;padding:12px 12px 12px 0;vertical-align:top;white-space:nowrap;">🆔 USER ID</td><td class="info-value" style="color:#2c3e50;font-size:14px;font-weight:500;padding:12px 0;word-break:break-all;overflow-wrap:anywhere;">{{USER_ID}}</td></tr>
+                    </table>
+                    <table class="info-row" width="100%" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
+                        <tr><td class="info-label" style="font-weight:700;color:#5a6c7d;width:130px;font-size:13px;text-transform:uppercase;letter-spacing:0.3px;padding:12px 12px 12px 0;vertical-align:top;white-space:nowrap;">🕐 RECEIVED</td><td class="info-value" style="color:#2c3e50;font-size:14px;font-weight:500;padding:12px 0;word-break:break-all;overflow-wrap:anywhere;">{{LEAD_TIME}}</td></tr>
+                    </table>
                     {{PRODUCT_ROW}}
                 </div>
             </div>
@@ -112,10 +108,9 @@ export function getTeamLeadAlertHtml(vars: TeamLeadAlertVars): string {
     : null;
 
   const productRow = productDisplay
-    ? `<div class="info-row" style="display:flex;padding:12px 0;border-bottom:1px solid #f5f5f5;">
-                        <span class="info-label" style="font-weight:700;color:#5a6c7d;min-width:130px;font-size:13px;text-transform:uppercase;letter-spacing:0.3px;">🚢 Product</span>
-                        <span class="info-value" style="color:#2c3e50;font-size:14px;flex:1;font-weight:500;">${productDisplay}</span>
-                    </div>`
+    ? `<table width="100%" cellpadding="0" cellspacing="0" style="width:100%;border-bottom:1px solid #f5f5f5;border-collapse:collapse;">
+                        <tr><td style="font-weight:700;color:#5a6c7d;width:130px;font-size:13px;text-transform:uppercase;letter-spacing:0.3px;padding:12px 12px 12px 0;vertical-align:top;white-space:nowrap;">🚢 PRODUCT</td><td style="color:#2c3e50;font-size:14px;font-weight:500;padding:12px 0;word-break:break-all;overflow-wrap:anywhere;">${productDisplay}</td></tr>
+                    </table>`
     : '';
   html = html.replace('{{PRODUCT_ROW}}', productRow);
 
