@@ -75,15 +75,33 @@ export class YachtBrokerService {
       ];
     }
 
-    const [listings, total] = await Promise.all([
-      this.prisma.client.yachtBrokerListing.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { lastSyncedAt: 'desc' },
-      }),
-      this.prisma.client.yachtBrokerListing.count({ where }),
-    ]);
+    // Fetch key fields for all matching records to deduplicate by (manufacturer, model, year).
+    // The YachtBroker API returns the same model from multiple dealers with different IDs;
+    // we keep only the most-recently-synced entry per unique model combination.
+    const allForDedup = await this.prisma.client.yachtBrokerListing.findMany({
+      where,
+      select: { externalId: true, manufacturer: true, model: true, year: true },
+      orderBy: { lastSyncedAt: 'desc' },
+    });
+
+    const seen = new Map<string, string>();
+    for (const r of allForDedup) {
+      const key = `${r.manufacturer ?? ''}|${r.model ?? ''}|${r.year ?? ''}`;
+      if (!seen.has(key)) seen.set(key, r.externalId);
+    }
+
+    const uniqueIds = Array.from(seen.values());
+    const total = uniqueIds.length;
+    const pageIds = uniqueIds.slice(skip, skip + limit);
+
+    const raw = await this.prisma.client.yachtBrokerListing.findMany({
+      where: { externalId: { in: pageIds } },
+    });
+
+    const idToRecord = new Map(raw.map((l) => [l.externalId, l]));
+    const listings = pageIds
+      .map((id) => idToRecord.get(id))
+      .filter((l): l is NonNullable<typeof l> => l != null);
 
     return successPaginatedResponse(
       listings,
@@ -96,14 +114,29 @@ export class YachtBrokerService {
   async getAiFormat(query: AiQueryDto) {
     const { page = 1, limit = 10 } = query;
 
-    const [listings, total] = await Promise.all([
-      this.prisma.client.yachtBrokerListing.findMany({
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: { lastSyncedAt: 'desc' },
-      }),
-      this.prisma.client.yachtBrokerListing.count(),
-    ]);
+    const allForDedup = await this.prisma.client.yachtBrokerListing.findMany({
+      select: { externalId: true, manufacturer: true, model: true, year: true },
+      orderBy: { lastSyncedAt: 'desc' },
+    });
+
+    const seen = new Map<string, string>();
+    for (const r of allForDedup) {
+      const key = `${r.manufacturer ?? ''}|${r.model ?? ''}|${r.year ?? ''}`;
+      if (!seen.has(key)) seen.set(key, r.externalId);
+    }
+
+    const uniqueIds = Array.from(seen.values());
+    const total = uniqueIds.length;
+    const pageIds = uniqueIds.slice((page - 1) * limit, page * limit);
+
+    const raw = await this.prisma.client.yachtBrokerListing.findMany({
+      where: { externalId: { in: pageIds } },
+    });
+
+    const idToRecord = new Map(raw.map((l) => [l.externalId, l]));
+    const listings = pageIds
+      .map((id) => idToRecord.get(id))
+      .filter((l): l is NonNullable<typeof l> => l != null);
 
     const data = listings.map((listing) => {
       const engines = Array.isArray(listing.engines)
