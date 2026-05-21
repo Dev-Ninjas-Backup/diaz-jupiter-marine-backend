@@ -9,9 +9,10 @@ import {
   Post,
   Query,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
@@ -81,6 +82,7 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Forgot Password (Public)' })
   @Public()
+  @UseGuards(ThrottlerGuard)
   @Throttle({ email: { limit: 3, ttl: 900_000 } })
   @Post('forgot-password')
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
