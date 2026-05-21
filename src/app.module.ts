@@ -1,12 +1,11 @@
 import { CacheModule } from '@nestjs/cache-manager';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { ENVEnum } from './common/enum/env.enum';
@@ -62,7 +61,7 @@ import { MainModule } from './main/main.module';
     MainModule,
   ],
   controllers: [AppController],
-  providers: [JwtStrategy, { provide: APP_GUARD, useClass: ThrottlerGuard }],
+  providers: [JwtStrategy],
   exports: [JwtStrategy],
 })
 export class AppModule implements NestModule {

@@ -13,9 +13,10 @@ import {
   Post,
   Query,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBody,
@@ -64,6 +65,7 @@ export class ContactController {
   }
 
   @ApiOperation({ summary: 'Create contact (with boat listing)' })
+  @UseGuards(ThrottlerGuard)
   @Throttle({ contact: { limit: 5, ttl: 600_000 } })
   @Post()
   async createContact(@Body() dto: CreateContactDto): Promise<TResponse<any>> {
@@ -98,6 +100,7 @@ export class ContactController {
   }
 
   @Post('contact-us')
+  @UseGuards(ThrottlerGuard)
   @Throttle({ contact: { limit: 5, ttl: 600_000 } })
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Submit contact us form' })
