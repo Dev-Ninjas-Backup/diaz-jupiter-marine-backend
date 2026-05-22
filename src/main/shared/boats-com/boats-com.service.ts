@@ -1,6 +1,7 @@
 import { HandleError } from '@/common/error/handle-error.decorator';
 import { AppError } from '@/common/error/handle-error.app';
 import {
+  formatUsd,
   successPaginatedResponse,
   successResponse,
 } from '@/common/utils/response.util';
@@ -132,8 +133,10 @@ export class BoatsComService {
         LastModificationDate: listing.lastModificationDate ?? null,
         ItemReceivedDate: listing.itemReceivedDate ?? null,
         OriginalPrice:
-          listing.originalPrice != null ? `${listing.originalPrice} USD` : null,
-        Price: listing.price != null ? `${listing.price.toFixed(2)} USD` : null,
+          listing.originalPrice != null
+            ? formatUsd(listing.originalPrice)
+            : null,
+        Price: listing.price != null ? formatUsd(listing.price) : null,
         BoatLocation: {
           BoatCityName: listing.city ?? null,
           BoatCountryID: listing.country ?? null,
