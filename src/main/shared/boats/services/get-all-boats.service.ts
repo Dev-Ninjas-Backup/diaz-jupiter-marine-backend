@@ -3,6 +3,7 @@ import { HandleError } from '@/common/error/handle-error.decorator';
 import {
   TPaginatedResponse,
   TResponse,
+  formatUsd,
   successResponse,
 } from '@/common/utils/response.util';
 import { BoatFromBoatsGroup } from '@/lib/boatsgroup/interface/boats.interface';
@@ -266,7 +267,7 @@ export class GetAllBoatsService {
         getter: (b: any) =>
           b?.Price ??
           b?.OriginalPrice ??
-          (b?.NormPrice != null ? `${b.NormPrice}` : null),
+          (b?.NormPrice != null ? formatUsd(b.NormPrice) : null),
       },
     ];
 
@@ -336,7 +337,7 @@ export class GetAllBoatsService {
         condition: get('SaleClassCode', 'condition'),
         price:
           get('Price', 'OriginalPrice') ??
-          (b?.NormPrice != null ? `${b.NormPrice}` : null),
+          (b?.NormPrice != null ? formatUsd(b.NormPrice) : null),
       };
     };
 
@@ -493,7 +494,7 @@ export class GetAllBoatsService {
       price:
         boat?.Price ??
         boat?.OriginalPrice ??
-        (boat?.NormPrice != null ? `${boat.NormPrice}` : null),
+        (boat?.NormPrice != null ? formatUsd(boat.NormPrice) : null),
 
       source: boat?.Source ?? query.source ?? null,
 

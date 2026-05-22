@@ -1,6 +1,7 @@
 import { BoatsSourceEnum } from '@/common/enum/boats-source.enum';
 import { HandleError } from '@/common/error/handle-error.decorator';
 import {
+  formatUsd,
   successPaginatedResponse,
   successResponse,
   TPaginatedResponse,
@@ -320,9 +321,9 @@ export class GetAllCustomBoatsService {
         (boat.createdAt ? boat.createdAt.toISOString() : undefined),
 
       // Pricing
-      OriginalPrice: boat.price != null ? `${boat.price} USD` : undefined,
-      Price:
-        boat.price != null ? `${Number(boat.price).toFixed(2)} USD` : undefined,
+      OriginalPrice:
+        boat.price != null ? formatUsd(Number(boat.price)) : undefined,
+      Price: boat.price != null ? formatUsd(Number(boat.price)) : undefined,
       PriceHideInd: parsedExtra.priceHideInd ?? undefined,
       NormPrice: boat.price ?? undefined,
 
