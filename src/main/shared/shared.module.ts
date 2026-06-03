@@ -12,6 +12,7 @@ import { FooterModule } from './footer/footer.module';
 import { OurTeamModule } from './our-team/our-team.module';
 import { VisitorModule } from './visitors/visitor.module';
 import { WhyUsModule } from './why-us/why-us.module';
+import { ShareModule } from './share/share.module';
 import { YachtBrokerModule } from './yachtbroker/yachtbroker.module';
 
 // NOTE: No SubscriptionModule — Jupiter Marine does not have seller subscriptions or onboarding.
@@ -22,6 +23,7 @@ import { YachtBrokerModule } from './yachtbroker/yachtbroker.module';
     BoatsModule,
     BoatsComModule,
     YachtBrokerModule,
+    ShareModule,
     BoatLookupModule,
     ContactModule,
     DailyLeadsModule,
