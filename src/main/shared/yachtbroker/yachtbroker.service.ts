@@ -21,7 +21,8 @@ export class YachtBrokerService {
       limit = 10,
       manufacturer,
       model,
-      year,
+      minYear,
+      maxYear,
       condition,
       category,
       city,
@@ -42,8 +43,11 @@ export class YachtBrokerService {
     if (model) {
       where.model = { contains: model, mode: 'insensitive' };
     }
-    if (year) {
-      where.year = parseInt(year, 10);
+    if (minYear !== undefined || maxYear !== undefined) {
+      where.year = {
+        ...(minYear !== undefined ? { gte: minYear } : {}),
+        ...(maxYear !== undefined ? { lte: maxYear } : {}),
+      };
     }
     if (condition) {
       where.condition = { contains: condition, mode: 'insensitive' };

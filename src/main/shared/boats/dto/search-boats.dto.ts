@@ -17,11 +17,19 @@ export class SearchBoatsDto extends PaginationDto {
   @IsString()
   model?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by build year', example: 2020 })
+  @ApiPropertyOptional({ description: 'Minimum build year', example: 2018 })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
-  year?: number;
+  @Min(0)
+  minYear?: number;
+
+  @ApiPropertyOptional({ description: 'Maximum build year', example: 2024 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  maxYear?: number;
 
   @ApiPropertyOptional({ description: 'Minimum length in feet', example: 20 })
   @IsOptional()

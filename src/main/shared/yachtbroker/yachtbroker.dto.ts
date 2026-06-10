@@ -19,10 +19,19 @@ export class YachtBrokerFilterDto extends PaginationDto {
   @IsString()
   model?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by year', example: '2023' })
+  @ApiPropertyOptional({ description: 'Minimum year', example: 2018 })
   @IsOptional()
-  @IsString()
-  year?: string;
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  minYear?: number;
+
+  @ApiPropertyOptional({ description: 'Maximum year', example: 2024 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  maxYear?: number;
 
   @ApiPropertyOptional({ description: 'Filter by condition', example: 'Used' })
   @IsOptional()

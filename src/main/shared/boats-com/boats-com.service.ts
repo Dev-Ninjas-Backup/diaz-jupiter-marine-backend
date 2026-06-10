@@ -21,7 +21,8 @@ export class BoatsComService {
       limit = 10,
       make,
       model,
-      year,
+      minYear,
+      maxYear,
       condition,
       city,
       state,
@@ -41,8 +42,11 @@ export class BoatsComService {
     if (model) {
       where.model = { contains: model, mode: 'insensitive' };
     }
-    if (year) {
-      where.modelYear = parseInt(year, 10);
+    if (minYear !== undefined || maxYear !== undefined) {
+      where.modelYear = {
+        ...(minYear !== undefined ? { gte: minYear } : {}),
+        ...(maxYear !== undefined ? { lte: maxYear } : {}),
+      };
     }
     if (condition) {
       where.saleClassCode = { contains: condition, mode: 'insensitive' };
