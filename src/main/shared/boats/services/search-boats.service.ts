@@ -63,7 +63,8 @@ export class SearchBoatsService {
       limit = 10,
       make,
       model,
-      year,
+      minYear,
+      maxYear,
       lengthMin,
       lengthMax,
       maxPrice,
@@ -80,7 +81,12 @@ export class SearchBoatsService {
     if (make)
       boatsComWhere.makeString = { contains: make, mode: 'insensitive' };
     if (model) boatsComWhere.model = { contains: model, mode: 'insensitive' };
-    if (year) boatsComWhere.modelYear = year;
+    if (minYear !== undefined || maxYear !== undefined) {
+      boatsComWhere.modelYear = {
+        ...(minYear !== undefined ? { gte: minYear } : {}),
+        ...(maxYear !== undefined ? { lte: maxYear } : {}),
+      };
+    }
     if (boatType)
       boatsComWhere.boatCategoryCode = {
         contains: boatType,
@@ -125,7 +131,12 @@ export class SearchBoatsService {
       yachtBrokerWhere.manufacturer = { contains: make, mode: 'insensitive' };
     if (model)
       yachtBrokerWhere.model = { contains: model, mode: 'insensitive' };
-    if (year) yachtBrokerWhere.year = year;
+    if (minYear !== undefined || maxYear !== undefined) {
+      yachtBrokerWhere.year = {
+        ...(minYear !== undefined ? { gte: minYear } : {}),
+        ...(maxYear !== undefined ? { lte: maxYear } : {}),
+      };
+    }
     if (boatType)
       yachtBrokerWhere.category = { contains: boatType, mode: 'insensitive' };
     if (lengthMin !== undefined || lengthMax !== undefined) {
