@@ -82,7 +82,7 @@ export class BoatsComService {
         where,
         skip,
         take: limit,
-        orderBy: { lastSyncedAt: 'desc' },
+        orderBy: { price: 'desc' },
       }),
       this.prisma.client.boatsComListing.count({ where }),
     ]);
@@ -102,7 +102,7 @@ export class BoatsComService {
       this.prisma.client.boatsComListing.findMany({
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: { lastSyncedAt: 'desc' },
+        orderBy: { price: 'desc' },
       }),
       this.prisma.client.boatsComListing.count(),
     ]);

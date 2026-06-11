@@ -86,7 +86,7 @@ export class YachtBrokerService {
     const allForDedup = await this.prisma.client.yachtBrokerListing.findMany({
       where,
       select: { externalId: true, manufacturer: true, model: true, year: true },
-      orderBy: { lastSyncedAt: 'desc' },
+      orderBy: { priceUsd: 'desc' },
     });
 
     const seen = new Map<string, string>();
@@ -121,7 +121,7 @@ export class YachtBrokerService {
 
     const allForDedup = await this.prisma.client.yachtBrokerListing.findMany({
       select: { externalId: true, manufacturer: true, model: true, year: true },
-      orderBy: { lastSyncedAt: 'desc' },
+      orderBy: { priceUsd: 'desc' },
     });
 
     const seen = new Map<string, string>();
