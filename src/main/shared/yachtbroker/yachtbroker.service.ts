@@ -35,7 +35,9 @@ export class YachtBrokerService {
     } = query;
     const skip = (page - 1) * limit;
 
-    const where: Prisma.YachtBrokerListingWhereInput = {};
+    const where: Prisma.YachtBrokerListingWhereInput = {
+      priceUsd: { not: null },
+    };
 
     if (manufacturer) {
       where.manufacturer = { contains: manufacturer, mode: 'insensitive' };
@@ -70,7 +72,7 @@ export class YachtBrokerService {
       };
     }
     if (maxPrice !== undefined) {
-      where.priceUsd = { lte: maxPrice };
+      where.priceUsd = { not: null, lte: maxPrice };
     }
     if (search) {
       where.OR = [

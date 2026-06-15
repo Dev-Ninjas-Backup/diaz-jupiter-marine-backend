@@ -34,7 +34,9 @@ export class BoatsComService {
     } = query;
     const skip = (page - 1) * limit;
 
-    const where: Prisma.BoatsComListingWhereInput = {};
+    const where: Prisma.BoatsComListingWhereInput = {
+      price: { not: null },
+    };
 
     if (make) {
       where.makeString = { contains: make, mode: 'insensitive' };
@@ -64,7 +66,7 @@ export class BoatsComService {
       };
     }
     if (maxPrice !== undefined) {
-      where.price = { lte: maxPrice };
+      where.price = { not: null, lte: maxPrice };
     }
     if (boatType) {
       where.boatCategoryCode = { contains: boatType, mode: 'insensitive' };
