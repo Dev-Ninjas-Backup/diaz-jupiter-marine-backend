@@ -8,6 +8,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 export interface BoatsComSyncResult {
   added: number;
   updated: number;
+  removed: number;
   total: number;
 }
 
@@ -166,6 +167,7 @@ export class BoatsComSyncService {
     const pageSize = 100;
     let start = 0;
     let hasMore = true;
+    const seenDocumentIds = new Set<string>();
 
     while (hasMore) {
       try {
@@ -190,6 +192,7 @@ export class BoatsComSyncService {
 
           const mapped = this.mapBoat(boat);
           const documentId = mapped.documentId;
+          seenDocumentIds.add(documentId);
 
           const existing = await this.prisma.client.boatsComListing.findUnique({
             where: { documentId },
@@ -223,10 +226,24 @@ export class BoatsComSyncService {
       }
     }
 
+    // Remove stale listings that were not present in the current sync
+    let removed = 0;
+    if (seenDocumentIds.size > 0) {
+      const { count } = await this.prisma.client.boatsComListing.deleteMany({
+        where: { documentId: { notIn: Array.from(seenDocumentIds) } },
+      });
+      removed = count;
+      if (removed > 0) {
+        this.logger.log(
+          `[BoatsComSync] Removed ${removed} stale listing(s) no longer present in the live API`,
+        );
+      }
+    }
+
     this.logger.log(
-      `[BoatsComSync] Done. Added: ${added}, Updated: ${updated}, Total: ${total}`,
+      `[BoatsComSync] Done. Added: ${added}, Updated: ${updated}, Removed: ${removed}, Total: ${total}`,
     );
-    return { added, updated, total };
+    return { added, updated, removed, total };
   }
 
   async importFromFrontend(
@@ -273,7 +290,7 @@ export class BoatsComSyncService {
     this.logger.log(
       `[BoatsComSync] Import done. Added: ${added}, Updated: ${updated}, Total: ${total}`,
     );
-    return { added, updated, total };
+    return { added, updated, removed: 0, total };
   }
 
   async syncSingle(documentId: string): Promise<BoatsComSyncResult> {
@@ -290,7 +307,7 @@ export class BoatsComSyncService {
 
       if (!boat) {
         this.logger.warn(`[BoatsComSync] Boat not found: ${documentId}`);
-        return { added: 0, updated: 0, total: 0 };
+        return { added: 0, updated: 0, removed: 0, total: 0 };
       }
 
       const mapped = this.mapBoat(boat);
@@ -318,6 +335,6 @@ export class BoatsComSyncService {
       );
     }
 
-    return { added, updated, total: 1 };
+    return { added, updated, removed: 0, total: 1 };
   }
 }

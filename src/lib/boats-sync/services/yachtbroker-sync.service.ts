@@ -8,6 +8,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 export interface YachtBrokerSyncResult {
   added: number;
   updated: number;
+  removed: number;
   total: number;
 }
 
@@ -274,6 +275,7 @@ export class YachtBrokerSyncService {
   private async upsertVessels(
     vessels: Record<string, unknown>[],
     cumulative?: YachtBrokerSyncProgress,
+    seenIds?: Set<string>,
   ): Promise<{ added: number; updated: number }> {
     let added = 0;
     let updated = 0;
@@ -283,6 +285,7 @@ export class YachtBrokerSyncService {
 
       const mapped = this.mapVessel(vessel);
       const externalId = mapped.externalId;
+      seenIds?.add(externalId);
 
       const existing = await this.prisma.client.yachtBrokerListing.findUnique({
         where: { externalId },
@@ -364,7 +367,7 @@ export class YachtBrokerSyncService {
     this.logger.log(
       `[YachtBrokerSync] Import done. Added: ${added}, Updated: ${updated}`,
     );
-    return { added, updated, total: added + updated };
+    return { added, updated, removed: 0, total: added + updated };
   }
 
   /**
@@ -382,6 +385,7 @@ export class YachtBrokerSyncService {
 
     let added = 0;
     let updated = 0;
+    let removed = 0;
     let apiTotal = 0;
     const progress: YachtBrokerSyncProgress = {
       processed: 0,
@@ -395,6 +399,7 @@ export class YachtBrokerSyncService {
           ? '[YachtBrokerSync] Initial backfill — fetching all pages...'
           : '[YachtBrokerSync] Full sync — fetching all pages...',
       );
+      const seenExternalIds = new Set<string>();
       let page = 1;
       let lastPage = 1;
 
@@ -408,10 +413,24 @@ export class YachtBrokerSyncService {
           );
         }
 
-        const r = await this.upsertVessels(vessels, progress);
+        const r = await this.upsertVessels(vessels, progress, seenExternalIds);
         added += r.added;
         updated += r.updated;
         page++;
+      }
+
+      // Remove stale listings that were not present in the current full sync
+      if (seenExternalIds.size > 0) {
+        const { count } =
+          await this.prisma.client.yachtBrokerListing.deleteMany({
+            where: { externalId: { notIn: Array.from(seenExternalIds) } },
+          });
+        removed = count;
+        if (removed > 0) {
+          this.logger.log(
+            `[YachtBrokerSync] Removed ${removed} stale listing(s) no longer present in the live API`,
+          );
+        }
       }
     } else {
       this.logger.log(
@@ -438,8 +457,8 @@ export class YachtBrokerSyncService {
     }
 
     this.logger.log(
-      `[YachtBrokerSync] Done. Added: ${added}, Updated: ${updated}, API total: ${apiTotal}`,
+      `[YachtBrokerSync] Done. Added: ${added}, Updated: ${updated}, Removed: ${removed}, API total: ${apiTotal}`,
     );
-    return { added, updated, total: apiTotal };
+    return { added, updated, removed, total: apiTotal };
   }
 }
