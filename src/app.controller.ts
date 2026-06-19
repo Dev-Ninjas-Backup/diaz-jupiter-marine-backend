@@ -196,6 +196,13 @@ export class AppController {
   constructor(private readonly config: ConfigService) {}
 
   @ApiExcludeEndpoint()
+  @Header('Content-Type', 'text/plain')
+  @Get('robots.txt')
+  robots() {
+    return `User-agent: *\nDisallow: /api/\nAllow: /\n`;
+  }
+
+  @ApiExcludeEndpoint()
   @Header('Content-Type', 'text/html')
   @Get()
   root() {
