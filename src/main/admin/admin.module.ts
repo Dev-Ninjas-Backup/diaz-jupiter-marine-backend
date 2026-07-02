@@ -14,12 +14,14 @@ import { PrivacyPolicyModule } from './privacy-policy/privacy-policy.module';
 import { SettingsModule } from './settings/settings.module';
 import { TermsOfServiceModule } from './terms-of-service/terms-of-service.module';
 import { UserPermissionsModule } from './users-permissions/user-permissions.module';
+import { PartnersModule } from './partners/partners.module';
 
 // NOTE: No SellerManagementModule, PackageBannerModule, or AdminSubscriptionModule
 // Jupiter Marine does not have seller onboarding or seller subscription features.
 
 @Module({
   imports: [
+    PartnersModule,
     BoatsModule,
     BoatsSyncAdminModule,
     TermsOfServiceModule,

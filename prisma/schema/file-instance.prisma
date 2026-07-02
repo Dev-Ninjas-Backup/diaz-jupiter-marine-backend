@@ -31,6 +31,7 @@ model FileInstance {
   whyUsImage3 WhyUs[] @relation("WhyUsImage3")
 
   ourTeamImages OurTeam[] @relation("OurTeamImage")
+  partnerLogos  Partner[] @relation("PartnerLogo")
 
   ourStoryImage1 OurStory[]    @relation("OurStoryImage1")
   ourStoryImage2 OurStory[]    @relation("OurStoryImage2")
