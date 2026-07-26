@@ -77,15 +77,23 @@ export class BlogService {
   }
 
   async findOne(id: string) {
-    const blog = await this.prisma.client.blog.findFirst({
+    let blog = await this.prisma.client.blog.findFirst({
       where: {
         OR: [{ id }, { sharedLink: id }],
       },
       include: { blogImage: true },
     });
 
+    if (!blog) {
+      const allBlogs = await this.prisma.client.blog.findMany({
+        include: { blogImage: true },
+      });
+      blog =
+        allBlogs.find((b) => this.makeSharedLink(b.blogTitle) === id) || null;
+    }
+
     if (!blog) throw new NotFoundException('Blog not found');
-    const viewCount = await this.getBlogPageViews(blog.sharedLink);
+    const viewCount = await this.getBlogPageViews(blog.sharedLink || id);
     return { ...blog, pageViewCount: viewCount };
   }
 
