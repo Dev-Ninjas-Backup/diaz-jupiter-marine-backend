@@ -77,8 +77,10 @@ export class BlogService {
   }
 
   async findOne(id: string) {
-    const blog = await this.prisma.client.blog.findUnique({
-      where: { id },
+    const blog = await this.prisma.client.blog.findFirst({
+      where: {
+        OR: [{ id }, { sharedLink: id }],
+      },
       include: { blogImage: true },
     });
 
