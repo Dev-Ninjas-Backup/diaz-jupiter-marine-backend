@@ -14,11 +14,64 @@ model Blog {
 
   fileInstances FileInstance[] @relation("blogImage")
 
+  // SEO Metadata
+  seoTitle          String?   @db.VarChar(255)
+  metaDescription   String?
+  focusKeyword      String?   @db.VarChar(255)
+  secondaryKeywords String[]  @default([])
+  slug              String?   @db.VarChar(255)
+  canonicalUrl      String?   @db.VarChar(500)
+  robotsIndex       Boolean   @default(true)
+  robotsFollow      Boolean   @default(true)
+
+  // Social / Open Graph & Twitter Cards
+  ogTitle            String? @db.VarChar(255)
+  ogDescription      String?
+  ogImageUrl         String? @db.VarChar(500)
+  twitterTitle       String? @db.VarChar(255)
+  twitterDescription String?
+  twitterImageUrl    String? @db.VarChar(500)
+
+  // Editorial & Author Information
+  authorName           String?   @db.VarChar(255)
+  authorBio            String?
+  publishedAt          DateTime?
+  featuredImageAlt     String?   @db.VarChar(255)
+  featuredImageCaption String?
+
+  // Content Clusters, Pillars & Series
+  isPillarPage    Boolean @default(false)
+  parentClusterId String? @db.VarChar(255)
+  seriesName      String? @db.VarChar(255)
+  seriesOrder     Int?
+
+  // Self-referential Previous & Next Articles
+  previousArticleId String? @db.VarChar(255)
+  nextArticleId     String? @db.VarChar(255)
+
+  // Structured Data (JSON-LD) & FAQs
+  schemaType SchemaType @default(ARTICLE)
+  faqSection Json?
+
   @@map("blog")
 }
 
 enum PostStatus {
   DRAFT
+  IN_REVIEW
+  APPROVED
+  SCHEDULED
   PUBLISHED
+  UPDATING
   ARCHIVED
 }
+
+enum SchemaType {
+  ARTICLE
+  BLOG_POSTING
+  FAQ_PAGE
+  HOW_TO
+  LOCAL_BUSINESS
+  ORGANIZATION
+}
+

@@ -31,7 +31,7 @@ export class BlogService {
       fileRecord = uploaded.data.files[0];
     }
 
-    const sharedLink = this.makeSharedLink(dto.blogTitle);
+    const sharedLink = dto.slug || this.makeSharedLink(dto.blogTitle);
 
     const existing = await this.prisma.client.blog.findFirst({
       where: { sharedLink },
@@ -55,6 +55,38 @@ export class BlogService {
         postStatus: dto.postStatus,
         sharedLink: sharedLink,
         blogImageId: fileRecord?.id,
+        // SEO Metadata
+        seoTitle: dto.seoTitle || dto.blogTitle,
+        metaDescription: dto.metaDescription,
+        focusKeyword: dto.focusKeyword,
+        secondaryKeywords: dto.secondaryKeywords || [],
+        slug: dto.slug || sharedLink,
+        canonicalUrl: dto.canonicalUrl,
+        robotsIndex: dto.robotsIndex ?? true,
+        robotsFollow: dto.robotsFollow ?? true,
+        // Social OG & Twitter
+        ogTitle: dto.ogTitle || dto.seoTitle || dto.blogTitle,
+        ogDescription: dto.ogDescription || dto.metaDescription,
+        ogImageUrl: dto.ogImageUrl,
+        twitterTitle: dto.twitterTitle || dto.seoTitle || dto.blogTitle,
+        twitterDescription: dto.twitterDescription || dto.metaDescription,
+        twitterImageUrl: dto.twitterImageUrl,
+        // Editorial
+        authorName: dto.authorName,
+        authorBio: dto.authorBio,
+        publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : new Date(),
+        featuredImageAlt: dto.featuredImageAlt,
+        featuredImageCaption: dto.featuredImageCaption,
+        // Clusters & Series
+        isPillarPage: dto.isPillarPage ?? false,
+        parentClusterId: dto.parentClusterId,
+        seriesName: dto.seriesName,
+        seriesOrder: dto.seriesOrder,
+        previousArticleId: dto.previousArticleId,
+        nextArticleId: dto.nextArticleId,
+        // Schema & FAQs
+        schemaType: dto.schemaType || 'ARTICLE',
+        faqSection: dto.faqSection || null,
       },
       include: { blogImage: true },
     });
@@ -79,7 +111,7 @@ export class BlogService {
   async findOne(id: string) {
     let blog = await this.prisma.client.blog.findFirst({
       where: {
-        OR: [{ id }, { sharedLink: id }],
+        OR: [{ id }, { sharedLink: id }, { slug: id }],
       },
       include: { blogImage: true },
     });
@@ -107,9 +139,11 @@ export class BlogService {
       fileRecord = uploaded.data.files[0];
     }
 
-    const sharedLink = dto.blogTitle
-      ? this.makeSharedLink(dto.blogTitle)
-      : undefined;
+    const sharedLink = dto.slug
+      ? dto.slug
+      : dto.blogTitle
+        ? this.makeSharedLink(dto.blogTitle)
+        : undefined;
 
     const { blogTitle, blogDescription, postStatus } = dto;
     const cleanUpdateDescription = blogDescription?.replace(
@@ -124,7 +158,39 @@ export class BlogService {
         blogDescription: cleanUpdateDescription,
         postStatus,
         sharedLink,
-        blogImageId: fileRecord?.id,
+        blogImageId: fileRecord ? fileRecord.id : undefined,
+        // SEO Metadata
+        seoTitle: dto.seoTitle,
+        metaDescription: dto.metaDescription,
+        focusKeyword: dto.focusKeyword,
+        secondaryKeywords: dto.secondaryKeywords,
+        slug: dto.slug,
+        canonicalUrl: dto.canonicalUrl,
+        robotsIndex: dto.robotsIndex,
+        robotsFollow: dto.robotsFollow,
+        // Social OG & Twitter
+        ogTitle: dto.ogTitle,
+        ogDescription: dto.ogDescription,
+        ogImageUrl: dto.ogImageUrl,
+        twitterTitle: dto.twitterTitle,
+        twitterDescription: dto.twitterDescription,
+        twitterImageUrl: dto.twitterImageUrl,
+        // Editorial
+        authorName: dto.authorName,
+        authorBio: dto.authorBio,
+        publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : undefined,
+        featuredImageAlt: dto.featuredImageAlt,
+        featuredImageCaption: dto.featuredImageCaption,
+        // Clusters & Series
+        isPillarPage: dto.isPillarPage,
+        parentClusterId: dto.parentClusterId,
+        seriesName: dto.seriesName,
+        seriesOrder: dto.seriesOrder,
+        previousArticleId: dto.previousArticleId,
+        nextArticleId: dto.nextArticleId,
+        // Schema & FAQs
+        schemaType: dto.schemaType,
+        faqSection: dto.faqSection,
       },
       include: { blogImage: true },
     });
