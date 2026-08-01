@@ -92,10 +92,36 @@ export class BlogService {
     });
   }
 
-  async findAll() {
+  async findAll(query?: Record<string, any>) {
+    const where: any = {};
+
+    if (query?.status && query.status !== 'ALL') {
+      where.postStatus = query.status;
+    }
+
+    if (query?.search) {
+      const search = String(query.search).trim();
+      where.OR = [
+        { blogTitle: { contains: search, mode: 'insensitive' } },
+        { seoTitle: { contains: search, mode: 'insensitive' } },
+        { focusKeyword: { contains: search, mode: 'insensitive' } },
+        { slug: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const orderBy: any = {};
+    if (query?.sortBy === 'oldest') {
+      orderBy.createdAt = 'asc';
+    } else if (query?.sortBy === 'title') {
+      orderBy.blogTitle = 'asc';
+    } else {
+      orderBy.createdAt = 'desc';
+    }
+
     const blogs = await this.prisma.client.blog.findMany({
+      where,
       include: { blogImage: true },
-      orderBy: { createdAt: 'desc' },
+      orderBy,
     });
 
     const withViews = await Promise.all(
@@ -104,6 +130,10 @@ export class BlogService {
         return { ...blog, pageViewCount: viewCount };
       }),
     );
+
+    if (query?.sortBy === 'views') {
+      withViews.sort((a, b) => b.pageViewCount - a.pageViewCount);
+    }
 
     return withViews;
   }

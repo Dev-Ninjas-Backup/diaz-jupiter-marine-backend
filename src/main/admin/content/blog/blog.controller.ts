@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -24,9 +25,9 @@ export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all blogs' })
-  findAll() {
-    return this.blogService.findAll();
+  @ApiOperation({ summary: 'Get all blogs with filtering and pagination' })
+  findAll(@Query() query: Record<string, any>) {
+    return this.blogService.findAll(query);
   }
 
   @Get('shared-link/:sharedLink')
